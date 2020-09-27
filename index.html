@@ -16,6 +16,32 @@
             flex-wrap: wrap;
         }
 
+        .cell {
+            width: 86px;
+            height: 128px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            margin: 4px;
+        }
+
+        header{
+            display: flex;
+            justify-content: center;
+        }
+
+        #free-cells {
+            display: flex;
+        }
+
+        #home-cells {
+            display: flex;
+        }
+
+        #cascades {
+            display: flex;
+            justify-content: center;
+        }
+
         .card {
             margin: 4px;
             border-radius: 4px;
@@ -31,11 +57,38 @@
 
 </head>
 <body>
+<header>
+    <div id="free-cells">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+    </div>
+    <div style="width: 50px">
+    </div>
+    <div id="home-cells">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+    </div>
+</header>
+<div id="cascades">
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+</div>
 <div id="stage"></div>
 </body>
 <script>
     class FreeCell {
         constructor() {
+            /** Cards **/
             this.cards = [];
             this.texts = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
             this.shapes = ["♥", "◆", "♣", "♠"];
@@ -50,11 +103,22 @@
                     })
                 })
             }
+
+            /** Stage **/
+            this.cascades = [];
+            this.freeCells = [];
+            this.homeCells = [];
+            for (let i = 0; i < 8; i++) {
+                this.cascades.push([]);
+            }
             this.render();
         }
 
         render = () => {
             console.log(this.cards);
+            console.log(this.cascades);
+            console.log(this.freeCells);
+            console.log(this.homeCells);
             const view = this.cards.map(card => `<div class="card" style="color:${card.color}"><span>${card.text}</span> ${card.shape}</div>`);
             document.getElementById("stage").innerHTML = view.join("");
         }
