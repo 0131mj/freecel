@@ -24,7 +24,7 @@
             margin: 4px;
         }
 
-        header{
+        header {
             display: flex;
             justify-content: center;
         }
@@ -45,13 +45,13 @@
         .card {
             margin: 4px;
             border-radius: 4px;
-            padding: 30px;
+            /*padding: 30px;*/
             font-size: 26px;
             font-weight: bold;
             background-color: #fff;
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            /*flex-direction: column;*/
+            justify-content: center;
         }
     </style>
 
@@ -74,14 +74,14 @@
     </div>
 </header>
 <div id="cascades">
-    <div class="cell"></div>
-    <div class="cell"></div>
-    <div class="cell"></div>
-    <div class="cell"></div>
-    <div class="cell"></div>
-    <div class="cell"></div>
-    <div class="cell"></div>
-    <div class="cell"></div>
+    <div class="cell" data-cascade="0"></div>
+    <div class="cell" data-cascade="1"></div>
+    <div class="cell" data-cascade="2"></div>
+    <div class="cell" data-cascade="3"></div>
+    <div class="cell" data-cascade="4"></div>
+    <div class="cell" data-cascade="5"></div>
+    <div class="cell" data-cascade="6"></div>
+    <div class="cell" data-cascade="7"></div>
 </div>
 <div id="stage"></div>
 </body>
@@ -111,16 +111,41 @@
             for (let i = 0; i < 8; i++) {
                 this.cascades.push([]);
             }
-            this.render();
+            this.startGame();
         }
+
+        startGame = () => {
+            this.cards.forEach(card => {
+                const num = Math.floor(Math.random() * this.cascades.length);
+
+                if (this.cascades[num].length <= 6) {
+                    this.cascades[num].push(card);
+                } else {
+                    for (let i = 0; i < this.cascades.length; i++) {
+                        if (this.cascades[i].length <= 6) {
+                            this.cascades[i].push(card);
+                            break;
+                        }
+                    }
+                }
+
+
+            });
+            console.log(this.cascades);
+            this.render();
+        };
 
         render = () => {
             console.log(this.cards);
             console.log(this.cascades);
             console.log(this.freeCells);
             console.log(this.homeCells);
-            const view = this.cards.map(card => `<div class="card" style="color:${card.color}"><span>${card.text}</span> ${card.shape}</div>`);
-            document.getElementById("stage").innerHTML = view.join("");
+            this.cascades.forEach((cascade, index) => {
+                const deck = document.querySelector(`[data-cascade="${index}"]`);
+                const dekCards = cascade.map(card => `<div class="card" style="color:${card.color}"><span>${card.text}</span> ${card.shape}</div>`).join("")
+                deck.innerHTML = dekCards;
+            });
+
         }
     }
 
