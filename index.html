@@ -108,6 +108,8 @@
             this.cascades = [];
             this.freeCells = [];
             this.homeCells = [];
+            this.draggingCards = [];
+
             for (let i = 0; i < 8; i++) {
                 this.cascades.push([]);
             }
@@ -128,12 +130,40 @@
                         }
                     }
                 }
-
-
             });
             console.log(this.cascades);
             this.render();
         };
+
+        checkDraggableCards = () => {
+
+        };
+
+        checkGameWin = () => {
+
+        };
+
+        getMovableCardCnt = () => {
+
+        };
+
+        onDrag = () => {
+
+        };
+
+        onDrop = () => {
+
+        };
+
+        onUpload = (card) => {
+            this.homeCells.push(card);
+        };
+
+        checkUploadable = (card) => {
+            const {shape, text} = card;
+            this.homeCells.push(card);
+        };
+
 
         render = () => {
             console.log(this.cards);
@@ -142,10 +172,9 @@
             console.log(this.homeCells);
             this.cascades.forEach((cascade, index) => {
                 const deck = document.querySelector(`[data-cascade="${index}"]`);
-                const dekCards = cascade.map(card => `<div class="card" style="color:${card.color}"><span>${card.text}</span> ${card.shape}</div>`).join("")
+                const dekCards = cascade.map(card => `<div class="card" style="color:${card.color}"><span>${card.text}</span> ${card.shape}</div>`).join("");
                 deck.innerHTML = dekCards;
             });
-
         }
     }
 
