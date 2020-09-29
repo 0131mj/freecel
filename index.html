@@ -42,6 +42,12 @@
             justify-content: center;
         }
 
+        .cascade {
+            display: flex;
+            flex-direction: column-reverse;
+            justify-content: flex-end;
+        }
+
         .card {
             margin: 4px;
             border-radius: 4px;
@@ -74,14 +80,14 @@
     </div>
 </header>
 <div id="cascades">
-    <div class="cell" data-cascade="0"></div>
-    <div class="cell" data-cascade="1"></div>
-    <div class="cell" data-cascade="2"></div>
-    <div class="cell" data-cascade="3"></div>
-    <div class="cell" data-cascade="4"></div>
-    <div class="cell" data-cascade="5"></div>
-    <div class="cell" data-cascade="6"></div>
-    <div class="cell" data-cascade="7"></div>
+    <div class="cascade cell" data-cascade="0"></div>
+    <div class="cascade cell" data-cascade="1"></div>
+    <div class="cascade cell" data-cascade="2"></div>
+    <div class="cascade cell" data-cascade="3"></div>
+    <div class="cascade cell" data-cascade="4"></div>
+    <div class="cascade cell" data-cascade="5"></div>
+    <div class="cascade cell" data-cascade="6"></div>
+    <div class="cascade cell" data-cascade="7"></div>
 </div>
 <div id="stage"></div>
 </body>
@@ -131,12 +137,45 @@
                     }
                 }
             });
-            console.log(this.cascades);
+            this.checkDraggableCards();
             this.render();
         };
 
         checkDraggableCards = () => {
+            this.cascades = this.cascades.map(cascade => {
+                const draggableIndexes = [];
+                let draggable = true;
+                let idx = 0;
 
+                while (draggable) {
+                    if (idx === 0) {
+                        draggableIndexes.push(idx);
+                    } else if (idx === cascade.length) {
+                        draggable = false;
+                    } else {
+                        const currCell = cascade[idx];
+                        const prevCell = cascade[idx - 1];
+
+                        const currIdx = this.texts.indexOf(currCell.text);
+                        const prevIdx = this.texts.indexOf(prevCell.text);
+                        if (prevIdx + 1 === currIdx && currCell.color !== prevCell.color) {
+                            draggableIndexes.push(idx);
+                        } else {
+                            draggable = false;
+                        }
+                    }
+
+                    idx++;
+                }
+
+                return cascade.map((cell, idx) => {
+
+                    return ({
+                        ...cell,
+                        isDraggable: draggableIndexes.includes(idx)
+                    })
+                })
+            })
         };
 
         checkGameWin = () => {
@@ -166,13 +205,20 @@
 
 
         render = () => {
-            console.log(this.cards);
-            console.log(this.cascades);
-            console.log(this.freeCells);
-            console.log(this.homeCells);
+//            console.log(this.cards);
+//            console.log(this.cascades);
+//            console.log(this.freeCells);
+//            console.log(this.homeCells);
             this.cascades.forEach((cascade, index) => {
                 const deck = document.querySelector(`[data-cascade="${index}"]`);
-                const dekCards = cascade.map(card => `<div class="card" style="color:${card.color}"><span>${card.text}</span> ${card.shape}</div>`).join("");
+                const dekCards = cascade.map(card => `
+                    <div
+                        class="card"
+                        style="color:${card.color}; background-color: ${card.isDraggable ? "#fff" : "#ccc" }"
+                    >
+                        <span>${card.text}</span> ${card.shape}
+                    </div>`
+                ).join("");
                 deck.innerHTML = dekCards;
             });
         }
