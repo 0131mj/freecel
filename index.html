@@ -54,10 +54,14 @@
             /*padding: 30px;*/
             font-size: 26px;
             font-weight: bold;
-            background-color: #fff;
+            background-color: #aaa;
             display: flex;
             /*flex-direction: column;*/
             justify-content: center;
+        }
+
+        .draggable {
+            background-color: #fff;
         }
     </style>
 
@@ -101,7 +105,7 @@
             for (let i = 0; i < 13; i++) {
                 this.shapes.forEach((shape) => {
                     const text = this.texts[i];
-                    const color = shape === "♠" || shape === "♣" ? "black" : "red";
+                    const color = this.getColorFromShape(shape);
                     this.cards.push({
                         shape,
                         text,
@@ -121,6 +125,10 @@
             }
             this.startGame();
         }
+
+        getColorFromShape = (shape) => {
+            return shape === "♠" || shape === "♣" ? "black" : "red";
+        };
 
         startGame = () => {
             this.cards.forEach(card => {
@@ -186,8 +194,9 @@
 
         };
 
-        onDrag = () => {
-
+        onDrag = (draggingCards) => {
+            console.dir(draggingCards)
+//            this.draggingCards = draggingCards;
         };
 
         onDrop = () => {
@@ -209,18 +218,29 @@
 //            console.log(this.cascades);
 //            console.log(this.freeCells);
 //            console.log(this.homeCells);
-            this.cascades.forEach((cascade, index) => {
-                const deck = document.querySelector(`[data-cascade="${index}"]`);
-                const dekCards = cascade.map(card => `
+            this.cascades.forEach((cascade, colIdx) => {
+                const deck = document.querySelector(`[data-cascade="${colIdx}"]`);
+                const dekCards = cascade.map((card, rowIdx) => `
                     <div
-                        class="card"
-                        style="color:${card.color}; background-color: ${card.isDraggable ? "#fff" : "#ccc" }"
+                        data-col="${colIdx}"
+                        data-row="${rowIdx}"
+                        class="card ${card.isDraggable ? " draggable" : "" }"
+                        style="color:${card.color}"
                     >
-                        <span>${card.text}</span> ${card.shape}
+                        <span>${card.text}</span>
+                        <span>${card.shape}</span>
                     </div>`
                 ).join("");
                 deck.innerHTML = dekCards;
             });
+
+            for (const el of document.getElementsByClassName("draggable")) {
+                el.addEventListener("click", (e) => {
+                    const {row, col} = e.currentTarget.dataset;
+                    console.log(col, row)
+                })
+            }
+
         }
     }
 
