@@ -116,8 +116,8 @@
 
             /** Stage **/
             this.cascades = [];
-            this.freeCells = [];
-            this.homeCells = [];
+            this.freeCells = [null, null, null, null];
+            this.homeCells = [null, null, null, null];
             this.draggingCards = [];
 
             for (let i = 0; i < 8; i++) {
@@ -184,6 +184,26 @@
                     })
                 })
             })
+        };
+
+        checkDroppableCascades = () => {
+
+        };
+
+        checkDroppableFreeCells = () => {
+            const isSingleCard = this.draggingCards.length === 1;
+            if (!isSingleCard) {
+                return;
+            }
+            return this.freeCells.filter(cell => cell === null);
+        };
+
+        checkDroppableHomeCells = () => {
+            const isSingleCard = this.draggingCards.length === 1;
+            if (!isSingleCard) {
+                return;
+            }
+            return this.homeCells.filter(cell => cell === null);
         };
 
         checkGameWin = () => {
