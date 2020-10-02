@@ -69,10 +69,10 @@
 <body>
 <header>
     <div id="free-cells">
-        <div class="cell"></div>
-        <div class="cell"></div>
-        <div class="cell"></div>
-        <div class="cell"></div>
+        <div class="cell" data-free="0"></div>
+        <div class="cell" data-free="1"></div>
+        <div class="cell" data-free="2"></div>
+        <div class="cell" data-free="3"></div>
     </div>
     <div style="width: 50px">
     </div>
@@ -117,8 +117,14 @@
             /** Stage **/
             this.cascades = [];
             this.freeCells = [null, null, null, null];
-            this.homeCells = [null, null, null, null];
+            this.homeCells = {
+                "♥": null,
+                "◆": null,
+                "♣": null,
+                "♠": null
+            };
             this.draggingCards = [];
+            this.pos = {col: null, row: null}
 
             for (let i = 0; i < 8; i++) {
                 this.cascades.push([]);
@@ -190,20 +196,25 @@
 
         };
 
-        checkDroppableFreeCells = () => {
+        getDropEnableFreeCellIndex = () => {
             const isSingleCard = this.draggingCards.length === 1;
             if (!isSingleCard) {
-                return;
+                return -1;
             }
-            return this.freeCells.filter(cell => cell === null);
+            return this.freeCells.findIndex(cell => !cell);
         };
 
-        checkDroppableHomeCells = () => {
+        checkDropEnableHomeCell = () => {
             const isSingleCard = this.draggingCards.length === 1;
             if (!isSingleCard) {
-                return;
+                return false;
             }
-            return this.homeCells.filter(cell => cell === null);
+            const {shape, text} = this.draggingCards[0];
+            const targetCell = this.homeCells[shape];
+            if (!targetCell) {
+                return true;
+            }
+
         };
 
         checkGameWin = () => {
@@ -232,10 +243,29 @@
             this.homeCells.push(card);
         };
 
-        dragStart = (pos) => {
+        moveToFreeCell = (pos, freeCellIndex) => {
+            this.freeCells[freeCellIndex] = this.getDraggingCardsFromPos(pos)[0];
+            this.cascades[pos.col].shift();
+            this.render();
+        };
+
+
+        getDraggingCardsFromPos = pos => {
             const {row, col} = pos;
-            console.log(col, row)
-        }
+            return this.cascades[col].slice(0, Number(row) + 1);
+        };
+
+        dragStart = (pos) => {
+            this.draggingCards = this.getDraggingCardsFromPos(pos);
+            const dropEnableHomeCells = this.checkDropEnableHomeCell();
+            const freeCellIndex = this.getDropEnableFreeCellIndex();
+
+            if (freeCellIndex > -1) {
+                this.moveToFreeCell(pos, freeCellIndex);
+            }
+
+            console.log(dropEnableHomeCells, freeCellIndex)
+        };
 
 
         render = () => {
@@ -243,9 +273,24 @@
 //            console.log(this.cascades);
 //            console.log(this.freeCells);
 //            console.log(this.homeCells);
+            this.freeCells.forEach((card, idx) => {
+                const deck = document.querySelector(`[data-free="${idx}"]`);
+                if(card !== null){
+                    console.log(card);
+                    deck.innerHTML = `
+                        <div
+                            class="card draggable"
+                            style="color:${card.color}"
+                        >
+                            <span>${card.text}</span>
+                            <span>${card.shape}</span>
+                        </div>`
+                }
+            });
+            
             this.cascades.forEach((cascade, colIdx) => {
                 const deck = document.querySelector(`[data-cascade="${colIdx}"]`);
-                const dekCards = cascade.map((card, rowIdx) => `
+                deck.innerHTML = cascade.map((card, rowIdx) => `
                     <div
                         data-col="${colIdx}"
                         data-row="${rowIdx}"
@@ -256,7 +301,6 @@
                         <span>${card.shape}</span>
                     </div>`
                 ).join("");
-                deck.innerHTML = dekCards;
             });
 
             for (const el of document.getElementsByClassName("draggable")) {
