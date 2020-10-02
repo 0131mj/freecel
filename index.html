@@ -304,7 +304,7 @@
             });
 
             for (const el of document.getElementsByClassName("draggable")) {
-                el.addEventListener("click", (e) => {
+                el.addEventListener("dblclick", (e) => {
                     const {row, col} = e.currentTarget.dataset;
                     this.dragStart({row, col})
                 })
