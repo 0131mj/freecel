@@ -247,6 +247,7 @@
         moveToFreeCell = (pos, freeCellIndex) => {
             this.freeCells[freeCellIndex] = this.getDraggingCardsFromPos(pos)[0];
             this.cascades[pos.col].shift();
+            this.checkDraggableCards();
             this.render();
         };
 
@@ -256,6 +257,7 @@
             this.homeCells[shape] = this.draggingCards[0];
             this.cascades[pos.col].shift();
             console.log(this.homeCells)
+            this.checkDraggableCards();
             this.render();
         };
 
