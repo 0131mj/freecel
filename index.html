@@ -118,10 +118,10 @@
             this.cascades = [];
             this.freeCells = [null, null, null, null];
             this.homeCells = {
-                "♥": null,
-                "◆": null,
-                "♣": null,
-                "♠": null
+                "♥": [],
+                "◆": [],
+                "♣": [],
+                "♠": []
             };
             this.draggingCards = [];
             this.pos = {col: null, row: null}
@@ -211,11 +211,13 @@
             }
             const {shape, text} = this.draggingCards[0];
             const targetCell = this.homeCells[shape];
-            if (!targetCell && text === "A") {
+            if (targetCell.length === 0 && text === "A") {
                 return true;
             }
-            if (this.get)
-                return false;
+            if (targetCell.length === 1 && text === "2") {
+                return true;
+            }
+            return false;
         };
 
         checkGameWin = () => {
@@ -254,9 +256,9 @@
         moveToHomeCell = (pos) => {
             console.log(this.draggingCards);
             const {shape} = this.draggingCards[0];
-            this.homeCells[shape] = this.draggingCards[0];
+            this.homeCells[shape].push(this.draggingCards[0]);
             this.cascades[pos.col].shift();
-            console.log(this.homeCells)
+            console.log(this.homeCells);
             this.checkDraggableCards();
             this.render();
         };
@@ -304,10 +306,10 @@
             const homeCellNames = Object.keys(this.homeCells);
             homeCellNames.forEach((shape, idx) => {
                 const deck = document.querySelector(`[data-home="${idx}"]`);
-                const card = this.homeCells[shape];
-                console.log("card", shape, card);
-                if (card) {
-                    deck.innerHTML = `
+                const cards = this.homeCells[shape];
+                console.log("card", shape, cards);
+                if (cards) {
+                    deck.innerHTML = cards.map(card =>`
                         <div
                             class="card draggable"
                             style="color:${card.color}"
@@ -315,6 +317,7 @@
                             <span>${card.text}</span>
                             <span>${card.shape}</span>
                         </div>`
+                    )
                 }
             });
 
