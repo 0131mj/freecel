@@ -211,13 +211,7 @@
             }
             const {shape, text} = this.draggingCards[0];
             const targetCell = this.homeCells[shape];
-            if (targetCell.length === 0 && text === "A") {
-                return true;
-            }
-            if (targetCell.length === 1 && text === "2") {
-                return true;
-            }
-            return false;
+            return targetCell.length === this.texts.indexOf(text);
         };
 
         checkGameWin = () => {
