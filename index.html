@@ -277,7 +277,13 @@
         };
 
         onClick = (pos) => {
-            console.log(pos)
+            const targetCol = this.cascades[Number(pos.col)];
+            const startCard = targetCol[Number(pos.row)];
+            console.log(startCard)
+        };
+
+        getDroppableCol = () => {
+
         }
 
 
