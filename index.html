@@ -279,12 +279,30 @@
         onClick = (pos) => {
             const targetCol = this.cascades[Number(pos.col)];
             const startCard = targetCol[Number(pos.row)];
-            console.log(startCard)
+            const result = this.getDroppableCols(startCard);
+            if (result.length > 0) {
+                result.forEach(idx => {
+                    const cascade = document.querySelector(`[data-cascade="${idx}"]`);
+                    cascade.style.backgroundColor= "yellow";
+                })
+            }
         };
 
-        getDroppableCol = () => {
+        getDroppableCols = (startCard) => {
+            const cols = [];
+            const target_idx = this.texts.indexOf(startCard.text);
+            const target_color = startCard.color;
 
-        }
+            this.cascades.forEach(((col, _i) => {
+                const firstCard = col[0];
+                const {text, color} = firstCard;
+                const i = this.texts.indexOf(text);
+                if (target_color !== color && target_idx + 1 === i) {
+                    cols.push(_i)
+                }
+            }))
+            return cols;
+        };
 
 
         render = () => {
