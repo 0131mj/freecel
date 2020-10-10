@@ -63,6 +63,11 @@
         .draggable {
             background-color: #fff;
         }
+
+        .droppable{
+            background-color: yellow;
+            height: 10px;
+        }
     </style>
 
 </head>
@@ -124,6 +129,7 @@
                 "♠": []
             };
             this.draggingCards = [];
+            this.droppableCols = [];
             this.pos = {col: null, row: null}
 
             for (let i = 0; i < 8; i++) {
@@ -279,13 +285,14 @@
         onClick = (pos) => {
             const targetCol = this.cascades[Number(pos.col)];
             const startCard = targetCol[Number(pos.row)];
-            const result = this.getDroppableCols(startCard);
-            if (result.length > 0) {
-                result.forEach(idx => {
-                    const cascade = document.querySelector(`[data-cascade="${idx}"]`);
-                    cascade.style.backgroundColor= "yellow";
-                })
-            }
+            this.droppableCols = this.getDroppableCols(startCard);
+            this.render();
+//            if (result.length > 0) {
+//                result.forEach(idx => {
+//                    const cascade = document.querySelector(`[data-cascade="${idx}"]`);
+//                    cascade.style.backgroundColor= "yellow";
+//                })
+//            }
         };
 
         getDroppableCols = (startCard) => {
@@ -345,6 +352,10 @@
 
             this.cascades.forEach((cascade, colIdx) => {
                 const deck = document.querySelector(`[data-cascade="${colIdx}"]`);
+                const isDroppable = this.droppableCols.includes(colIdx);
+                if(isDroppable){
+                    deck.classList.add("droppable")
+                }
                 deck.innerHTML = cascade.map((card, rowIdx) => `
                     <div
                         data-col="${colIdx}"
@@ -355,7 +366,7 @@
                         <span>${card.text}</span>
                         <span>${card.shape}</span>
                     </div>`
-                ).join("");
+                ).join(``);
             });
 
             for (const el of document.getElementsByClassName("draggable")) {
