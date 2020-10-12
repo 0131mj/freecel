@@ -315,7 +315,9 @@
         };
 
         dropCard = (cascadeIndex) => {
-            console.log(cascadeIndex);
+            console.log(cascadeIndex, this.pos, this.draggingCards, this.cascades[cascadeIndex]);
+            this.cascades[cascadeIndex] = this.draggingCards.concat(this.cascades[cascadeIndex]); // 추가하기
+            this.render();
         }
 
 
