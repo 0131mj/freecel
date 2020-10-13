@@ -300,6 +300,9 @@
 
         getDroppableCols = (startCard) => {
             const cols = [];
+            if (!startCard) {
+                return cols;
+            }
             const target_idx = this.texts.indexOf(startCard.text);
             const target_color = startCard.color;
 
@@ -315,8 +318,12 @@
         };
 
         dropCard = (cascadeIndex) => {
-            console.log(cascadeIndex, this.pos, this.draggingCards, this.cascades[cascadeIndex]);
+            const fromCascade = this.cascades[this.pos.col];
+            fromCascade.splice(0, this.draggingCards.length); // 제거하기
             this.cascades[cascadeIndex] = this.draggingCards.concat(this.cascades[cascadeIndex]); // 추가하기
+            this.draggingCards = [];
+            this.droppableCols = [];
+            this.checkDraggableCards();
             this.render();
         }
 
@@ -364,6 +371,8 @@
                 const isDroppable = this.droppableCols.includes(colIdx);
                 if (isDroppable) {
                     deck.classList.add("droppable")
+                }else{
+                    deck.classList.remove("droppable")
                 }
                 deck.innerHTML = cascade.map((card, rowIdx) => `
                     <div
