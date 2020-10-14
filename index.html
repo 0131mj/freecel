@@ -137,6 +137,10 @@
                 this.cascades.push([]);
             }
             this.startGame();
+            document.addEventListener("contextmenu",(e)=>{
+                e.preventDefault();
+                this.dragCancel();
+            })
         }
 
         getColorFromShape = (shape) => {
@@ -325,7 +329,14 @@
             this.droppableCols = [];
             this.checkDraggableCards();
             this.render();
-        }
+        };
+
+        dragCancel = () => {
+            this.draggingCards = [];
+            this.droppableCols = [];
+            this.checkDraggableCards();
+            this.render();
+        };
 
 
         render = () => {
