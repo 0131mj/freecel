@@ -288,12 +288,18 @@
         };
 
         onClick = (pos) => {
+            console.log("onClick", pos)
             const targetCol = this.cascades[Number(pos.col)];
             const startCard = targetCol[Number(pos.row)];
+            console.log({startCard})
             this.droppableCols = this.getDroppableCols(startCard);
             this.draggingCards = this.getDraggingCardsFromPos(pos);
+            console.log("droppableCols", this.droppableCols)
+            console.log("draggingCards", this.draggingCards)
+            console.log("before render")
             this.pos = pos;
             this.render();
+            console.log("after render")
 //            if (result.length > 0) {
 //                result.forEach(idx => {
 //                    const cascade = document.querySelector(`[data-cascade="${idx}"]`);
@@ -344,6 +350,7 @@
 //            console.log(this.cascades);
 //            console.log(this.freeCells);
 //            console.log(this.homeCells);
+            console.log("render")
             this.freeCells.forEach((card, idx) => {
                 const deck = document.querySelector(`[data-free="${idx}"]`);
                 if (card !== null) {
@@ -363,7 +370,7 @@
             homeCellNames.forEach((shape, idx) => {
                 const deck = document.querySelector(`[data-home="${idx}"]`);
                 const cards = this.homeCells[shape];
-                console.log("card", shape, cards);
+//                console.log("card", shape, cards);
                 if (cards) {
                     deck.innerHTML = cards.map(card => `
                         <div
@@ -379,6 +386,7 @@
 
             this.cascades.forEach((cascade, colIdx) => {
                 const deck = document.querySelector(`[data-cascade="${colIdx}"]`);
+                console.log("colIdx", this.droppableCols)
                 const isDroppable = this.droppableCols.includes(colIdx);
                 if (isDroppable) {
                     deck.classList.add("droppable")
@@ -404,6 +412,8 @@
                     this.doubleClick({row, col})
                 })
                 el.addEventListener("click", (e) => {
+//                    e.stopPropagation();
+                    console.log("click")
                     const {row, col} = e.currentTarget.dataset;
                     this.onClick({row, col})
                 })
