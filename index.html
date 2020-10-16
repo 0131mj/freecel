@@ -62,6 +62,7 @@
 
         .draggable {
             background-color: #fff;
+            cursor: move;
         }
 
         .droppable {
@@ -137,7 +138,7 @@
                 this.cascades.push([]);
             }
             this.startGame();
-            document.addEventListener("contextmenu",(e)=>{
+            document.addEventListener("contextmenu", (e) => {
                 e.preventDefault();
                 this.dragCancel();
             })
@@ -390,10 +391,25 @@
                 const isDroppable = this.droppableCols.includes(colIdx);
                 if (isDroppable) {
                     deck.classList.add("droppable")
-                }else{
+                } else {
                     deck.classList.remove("droppable")
                 }
-                deck.innerHTML = cascade.map((card, rowIdx) => `
+//                deck.innerHTML = cascade.map((card, rowIdx) => `
+//                    <div
+//                        draggable="${card.isDraggable ? "true" : "false" }"
+//                        data-col="${colIdx}"
+//                        data-row="${rowIdx}"
+//                        class="card ${card.isDraggable ? " draggable" : "" }"
+//                        style="color:${card.color}"
+//                    >
+//                        <span>${card.text}</span>
+//                        <span>${card.shape}</span>
+//                    </div>`
+//                ).join(``);
+                const result = cascade.reduce((acc, card, rowIdx) => {
+                    const wrapper = document.createElement("div");
+                    wrapper.setAttribute("draggable", "true");
+                    wrapper.innerHTML = `
                     <div
                         data-col="${colIdx}"
                         data-row="${rowIdx}"
@@ -402,8 +418,12 @@
                     >
                         <span>${card.text}</span>
                         <span>${card.shape}</span>
-                    </div>`
-                ).join(``);
+                    </div>
+                    `;
+                    wrapper.appendChild(acc);
+                    return wrapper;
+                }, document.createElement("div"));
+                deck.appendChild(result);
             });
 
             for (const el of document.getElementsByClassName("draggable")) {
