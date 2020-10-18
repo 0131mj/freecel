@@ -394,26 +394,15 @@
                 } else {
                     deck.classList.remove("droppable")
                 }
-//                deck.innerHTML = cascade.map((card, rowIdx) => `
-//                    <div
-//                        draggable="${card.isDraggable ? "true" : "false" }"
-//                        data-col="${colIdx}"
-//                        data-row="${rowIdx}"
-//                        class="card ${card.isDraggable ? " draggable" : "" }"
-//                        style="color:${card.color}"
-//                    >
-//                        <span>${card.text}</span>
-//                        <span>${card.shape}</span>
-//                    </div>`
-//                ).join(``);
                 const result = cascade.reduce((acc, card, rowIdx) => {
                     const wrapper = document.createElement("div");
-                    wrapper.setAttribute("draggable", "true");
+                    const {isDraggable} = card;
+                    wrapper.setAttribute("draggable", isDraggable);
                     wrapper.innerHTML = `
                     <div
                         data-col="${colIdx}"
                         data-row="${rowIdx}"
-                        class="card ${card.isDraggable ? " draggable" : "" }"
+                        class="card ${isDraggable ? " draggable" : "" }"
                         style="color:${card.color}"
                     >
                         <span>${card.text}</span>
