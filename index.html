@@ -399,6 +399,8 @@
                     const {isDraggable} = card;
                     wrapper.setAttribute("draggable", isDraggable);
                     wrapper.classList.add("drag-handler");
+                    wrapper.dataset["col"] = colIdx;
+                    wrapper.dataset["row"] = rowIdx;
                     wrapper.innerHTML = `
                     <div
                         data-col="${colIdx}"
@@ -422,9 +424,10 @@
 //                    this.doubleClick({row, col})
 //                });
                 el.addEventListener("dragstart", (e) => {
-//                    e.stopPropagation();
-                    console.log("drag")
-//                    const {row, col} = e.currentTarget.dataset;
+                    e.stopPropagation();
+                    const {row, col} = e.currentTarget.dataset;
+                    console.log("drag", e.currentTarget, row, col)
+
 //                    this.onClick({row, col})
                 })
             }
