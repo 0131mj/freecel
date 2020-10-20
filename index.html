@@ -234,11 +234,6 @@
 
         };
 
-        onDrag = (draggingCards) => {
-            console.dir(draggingCards)
-//            this.draggingCards = draggingCards;
-        };
-
         onDrop = () => {
 
         };
@@ -288,19 +283,28 @@
             console.log(dropEnableHomeCell, freeCellIndex)
         };
 
-        onClick = (pos) => {
-            console.log("onClick", pos)
+        displayDroppable = (cols) => {
+            cols.forEach(col => {
+                const deck = document.querySelector(`[data-cascade="${col}"]`);
+                deck.classList.add("droppable")
+            })
+        };
+
+        onDrag = (pos) => {
+            console.log("onDrag", pos)
             const targetCol = this.cascades[Number(pos.col)];
             const startCard = targetCol[Number(pos.row)];
             console.log({startCard})
             this.droppableCols = this.getDroppableCols(startCard);
             this.draggingCards = this.getDraggingCardsFromPos(pos);
+
             console.log("droppableCols", this.droppableCols)
             console.log("draggingCards", this.draggingCards)
-            console.log("before render")
-            this.pos = pos;
-            this.render();
-            console.log("after render")
+            this.displayDroppable(this.droppableCols);
+//            console.log("before render")
+//            this.pos = pos;
+//            this.render();
+//            console.log("after render")
 //            if (result.length > 0) {
 //                result.forEach(idx => {
 //                    const cascade = document.querySelector(`[data-cascade="${idx}"]`);
@@ -354,6 +358,7 @@
             console.log("render")
             this.freeCells.forEach((card, idx) => {
                 const deck = document.querySelector(`[data-free="${idx}"]`);
+                deck.innerHTML = "";
                 if (card !== null) {
                     console.log(card);
                     deck.innerHTML = `
@@ -387,6 +392,7 @@
 
             this.cascades.forEach((cascade, colIdx) => {
                 const deck = document.querySelector(`[data-cascade="${colIdx}"]`);
+                deck.innerHTML = "";
                 console.log("colIdx", this.droppableCols)
                 const isDroppable = this.droppableCols.includes(colIdx);
                 if (isDroppable) {
@@ -428,7 +434,7 @@
                     const {row, col} = e.currentTarget.dataset;
                     console.log("drag", e.currentTarget, row, col)
 
-//                    this.onClick({row, col})
+                    this.onDrag({row, col})
                 })
             }
             for (const el of document.getElementsByClassName("droppable")) {
