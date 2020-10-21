@@ -436,6 +436,18 @@
 
                     this.onDrag({row, col})
                 })
+
+                el.addEventListener("dragend", (e) => {
+                    e.stopPropagation()
+
+                    const decks = document.querySelectorAll(".droppable");
+                    for (const deck of decks) {
+                        deck.classList.remove("droppable")
+                    }
+                    console.log("Drag End", decks);
+
+//                    this.onDrag({row, col})
+                })
             }
             for (const el of document.getElementsByClassName("droppable")) {
                 el.addEventListener("click", (e) => {
