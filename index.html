@@ -425,10 +425,10 @@
             });
 
             for (const el of document.getElementsByClassName("drag-handler")) {
-//                el.addEventListener("dblclick", (e) => {
-//                    const {row, col} = e.currentTarget.dataset;
-//                    this.doubleClick({row, col})
-//                });
+                el.addEventListener("dblclick", (e) => {
+                    const {row, col} = e.currentTarget.dataset;
+                    this.doubleClick({row, col})
+                });
                 el.addEventListener("dragstart", (e) => {
                     e.stopPropagation();
                     const {row, col} = e.currentTarget.dataset;
