@@ -436,6 +436,14 @@
 
                     this.onDrag({row, col})
                 })
+                el.addEventListener("dragover",(e)=>{
+                    e.preventDefault();
+                })
+
+                el.addEventListener("drop",(e)=>{
+                    e.preventDefault();
+                    console.log("드랍", e);
+                })
 
                 el.addEventListener("dragend", (e) => {
                     e.stopPropagation()
@@ -453,6 +461,13 @@
                 el.addEventListener("click", (e) => {
                     const {cascade} = e.currentTarget.dataset;
                     this.dropCard(cascade);
+                })
+                el.addEventListener("dragover",(e)=>{
+                    e.preventDefault();
+                })
+                el.addEventListener("drop",(e)=>{
+                    e.preventDefault();
+                    console.log("drop", e)
                 })
             }
 
