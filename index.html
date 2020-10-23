@@ -442,7 +442,8 @@
 
                 el.addEventListener("drop",(e)=>{
                     e.preventDefault();
-                    console.log("드랍", e);
+                    e.stopPropagation();
+                    console.log("드랍", e, el);
                 })
 
                 el.addEventListener("dragend", (e) => {
