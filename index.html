@@ -292,6 +292,7 @@
 
         onDrag = (pos) => {
             console.log("onDrag", pos)
+            this.pos = pos;
             const targetCol = this.cascades[Number(pos.col)];
             const startCard = targetCol[Number(pos.row)];
             console.log({startCard})
@@ -443,7 +444,10 @@
                 el.addEventListener("drop",(e)=>{
                     e.preventDefault();
                     e.stopPropagation();
-                    console.log("드랍", e, el);
+                    const {row, col} = el.dataset;
+                    this.dropCard(Number(col));
+//                    console.log("드랍", e, el);
+//                    console.log("드랍", e, el.dataset);
                 })
 
                 el.addEventListener("dragend", (e) => {
