@@ -461,18 +461,27 @@
 
 //                    this.onDrag({row, col})
                 })
+                el.addEventListener("dragenter", (e)=>{
+                    e.stopPropagation()
+                    console.log("드래그 엔터", e.currentTarget)
+                })
             }
             for (const el of document.getElementsByClassName("droppable")) {
-                el.addEventListener("click", (e) => {
-                    const {cascade} = e.currentTarget.dataset;
-                    this.dropCard(cascade);
-                })
+//                el.addEventListener("click", (e) => {
+//                    const {cascade} = e.currentTarget.dataset;
+//                    this.dropCard(cascade);
+//                })
                 el.addEventListener("dragover",(e)=>{
                     e.preventDefault();
+                    console.log("드래그 오버")
                 })
                 el.addEventListener("drop",(e)=>{
                     e.preventDefault();
                     console.log("drop", e)
+                })
+                el.addEventListener("dragenter", (e)=>{
+                    e.stopPropagation()
+                    console.log("드래그 엔터")
                 })
             }
 
