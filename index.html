@@ -1,104 +1,109 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Free Cell</title>
-    <style>
-        body {
-            background-color: green;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Free Cell</title>
+  <style>
+    body {
+      background-color: green;
+    }
 
-        #stage {
-            display: flex;
-            flex-wrap: wrap;
-        }
+    #stage {
+      display: flex;
+      flex-wrap: wrap;
+    }
 
-        .cell {
-            width: 86px;
-            height: 128px;
-            background-color: rgba(0, 0, 0, 0.2);
-            border-radius: 4px;
-            margin: 4px;
-        }
+    .cell {
+      width: 86px;
+      height: 128px;
+      background-color: rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+      margin: 4px;
+    }
 
-        header {
-            display: flex;
-            justify-content: center;
-        }
+    header {
+      display: flex;
+      justify-content: center;
+    }
 
-        #free-cells {
-            display: flex;
-        }
+    #free-cells {
+      display: flex;
+    }
 
-        #home-cells {
-            display: flex;
-        }
+    #home-cells {
+      display: flex;
+    }
 
-        #cascades {
-            display: flex;
-            justify-content: center;
-        }
+    #cascades {
+      display: flex;
+      justify-content: center;
+    }
 
-        .cascade {
-            display: flex;
-            flex-direction: column-reverse;
-            justify-content: flex-end;
-        }
+    .cascade {
+      display: flex;
+      flex-direction: column-reverse;
+      justify-content: flex-end;
+    }
 
-        .card {
-            margin: 4px;
-            border-radius: 4px;
-            /*padding: 30px;*/
-            font-size: 26px;
-            font-weight: bold;
-            background-color: #aaa;
-            display: flex;
-            /*flex-direction: column;*/
-            justify-content: center;
-        }
+    .card {
+      margin: 4px;
+      border-radius: 4px;
+      /*padding: 30px;*/
+      font-size: 26px;
+      font-weight: bold;
+      background-color: #aaa;
+      display: flex;
+      /*flex-direction: column;*/
+      justify-content: center;
+    }
 
-        .draggable {
-            background-color: #fff;
-            cursor: move;
-        }
+    .draggable {
+      background-color: #fff;
+      cursor: move;
+    }
 
-        .droppable {
-            background-color: yellow;
-            height: 100%;
-            padding-bottom: 20px;
-        }
-    </style>
+    .droppable {
+      background-color: yellow;
+      height: 100%;
+      padding-bottom: 60px;
+    }
+
+    .drag-handler {
+      padding-bottom: 20px;
+    }
+
+  </style>
 
 </head>
 <body>
 <header>
-    <div id="free-cells">
-        <div class="cell" data-free="0"></div>
-        <div class="cell" data-free="1"></div>
-        <div class="cell" data-free="2"></div>
-        <div class="cell" data-free="3"></div>
-    </div>
-    <div style="width: 50px">
-    </div>
-    <div id="home-cells">
-        <div class="cell" data-home="0"></div>
-        <div class="cell" data-home="1"></div>
-        <div class="cell" data-home="2"></div>
-        <div class="cell" data-home="3"></div>
-    </div>
+  <div id="free-cells">
+    <div class="cell" data-free="0"></div>
+    <div class="cell" data-free="1"></div>
+    <div class="cell" data-free="2"></div>
+    <div class="cell" data-free="3"></div>
+  </div>
+  <div style="width: 50px">
+  </div>
+  <div id="home-cells">
+    <div class="cell" data-home="0"></div>
+    <div class="cell" data-home="1"></div>
+    <div class="cell" data-home="2"></div>
+    <div class="cell" data-home="3"></div>
+  </div>
 </header>
 <div id="cascades">
-    <div class="cascade cell" data-cascade="0"></div>
-    <div class="cascade cell" data-cascade="1"></div>
-    <div class="cascade cell" data-cascade="2"></div>
-    <div class="cascade cell" data-cascade="3"></div>
-    <div class="cascade cell" data-cascade="4"></div>
-    <div class="cascade cell" data-cascade="5"></div>
-    <div class="cascade cell" data-cascade="6"></div>
-    <div class="cascade cell" data-cascade="7"></div>
+  <div class="cascade cell" data-cascade="0"></div>
+  <div class="cascade cell" data-cascade="1"></div>
+  <div class="cascade cell" data-cascade="2"></div>
+  <div class="cascade cell" data-cascade="3"></div>
+  <div class="cascade cell" data-cascade="4"></div>
+  <div class="cascade cell" data-cascade="5"></div>
+  <div class="cascade cell" data-cascade="6"></div>
+  <div class="cascade cell" data-cascade="7"></div>
 </div>
 <div id="stage"></div>
 </body>
@@ -437,11 +442,11 @@
 
                     this.onDrag({row, col})
                 })
-                el.addEventListener("dragover",(e)=>{
+                el.addEventListener("dragover", (e) => {
                     e.preventDefault();
                 })
 
-                el.addEventListener("drop",(e)=>{
+                el.addEventListener("drop", (e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     const {row, col} = el.dataset;
@@ -461,7 +466,7 @@
 
 //                    this.onDrag({row, col})
                 })
-                el.addEventListener("dragenter", (e)=>{
+                el.addEventListener("dragenter", (e) => {
                     e.stopPropagation()
                     console.log("드래그 엔터", e.currentTarget)
                 })
@@ -471,15 +476,15 @@
 //                    const {cascade} = e.currentTarget.dataset;
 //                    this.dropCard(cascade);
 //                })
-                el.addEventListener("dragover",(e)=>{
+                el.addEventListener("dragover", (e) => {
                     e.preventDefault();
                     console.log("드래그 오버")
                 })
-                el.addEventListener("drop",(e)=>{
+                el.addEventListener("drop", (e) => {
                     e.preventDefault();
                     console.log("drop", e)
                 })
-                el.addEventListener("dragenter", (e)=>{
+                el.addEventListener("dragenter", (e) => {
                     e.stopPropagation()
                     console.log("드래그 엔터")
                 })
