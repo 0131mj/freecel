@@ -382,9 +382,9 @@
             homeCellNames.forEach((shape, idx) => {
                 const deck = document.querySelector(`[data-home="${idx}"]`);
                 const cards = this.homeCells[shape];
-//                console.log("card", shape, cards);
                 if (cards) {
-                    deck.innerHTML = cards.map(card => `
+                    deck.innerHTML = cards.reduce((cards, card) =>{
+                      return cards += `
                         <div
                             class="card draggable"
                             style="color:${card.color}"
@@ -392,7 +392,7 @@
                             <span>${card.text}</span>
                             <span>${card.shape}</span>
                         </div>`
-                    )
+                    },"")
                 }
             });
 
