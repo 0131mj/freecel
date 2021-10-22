@@ -1,142 +1,195 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Free Cell</title>
-  <style>
-    body {
-      background-color: green;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Free Cell</title>
+    <style>
+        body {
+            background-color: green;
+        }
 
-    #stage {
-      display: flex;
-      flex-wrap: wrap;
-    }
+        #stage {
+            display: flex;
+            flex-wrap: wrap;
+        }
 
-    .cell {
-      width: 86px;
-      height: 128px;
-      background-color: rgba(0, 0, 0, 0.2);
-      border-radius: 4px;
-      margin: 4px;
-    }
+        .cell {
+            width: 86px;
+            height: 128px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            margin: 4px;
+        }
 
-    header {
-      display: flex;
-      justify-content: center;
-    }
+        header {
+            display: flex;
+            justify-content: center;
+        }
 
-    #free-cells {
-      display: flex;
-    }
+        #free-cells {
+            display: flex;
+        }
 
-    #home-cells {
-      display: flex;
-    }
+        #home-cells {
+            display: flex;
+        }
 
-    #cascades {
-      display: flex;
-      justify-content: center;
-    }
+        #cascades {
+            display: flex;
+            justify-content: center;
+        }
 
-    .cascade {
-      display: flex;
-      flex-direction: column-reverse;
-      justify-content: flex-end;
-    }
+        .cascade {
+            display: flex;
+            flex-direction: column-reverse;
+            justify-content: flex-end;
+        }
 
-    .card {
-      margin: 4px;
-      border-radius: 4px;
-      /*padding: 30px;*/
-      font-size: 26px;
-      font-weight: bold;
-      background-color: #aaa;
-      display: flex;
-      /*flex-direction: column;*/
-      justify-content: center;
-    }
+        .card {
+            margin: 4px;
+            border-radius: 4px;
+            /*padding: 30px;*/
+            font-size: 26px;
+            font-weight: bold;
+            background-color: #aaa;
+            display: flex;
+            /*flex-direction: column;*/
+            justify-content: center;
+        }
 
-    .draggable {
-      background-color: #fff;
-      cursor: move;
-    }
+        .draggable {
+            background-color: #fff;
+            cursor: move;
+        }
 
-    .droppable {
-      background-color: yellow;
-      height: 100%;
-      padding-bottom: 60px;
-    }
+        .droppable {
+            background-color: yellow;
+            height: 100%;
+            padding-bottom: 60px;
+        }
 
-    .drag-handler {
-      padding-bottom: 20px;
-    }
+        .drag-handler {
+            padding-bottom: 20px;
+        }
 
-  </style>
+    </style>
 
 </head>
 <body>
 <header>
-  <div id="free-cells">
-    <div class="cell" data-free="0"></div>
-    <div class="cell" data-free="1"></div>
-    <div class="cell" data-free="2"></div>
-    <div class="cell" data-free="3"></div>
-  </div>
-  <div style="width: 50px">
-  </div>
-  <div id="home-cells">
-    <div class="cell" data-home="0"></div>
-    <div class="cell" data-home="1"></div>
-    <div class="cell" data-home="2"></div>
-    <div class="cell" data-home="3"></div>
-  </div>
+    <div id="free-cells">
+        <div class="cell" data-free="0"></div>
+        <div class="cell" data-free="1"></div>
+        <div class="cell" data-free="2"></div>
+        <div class="cell" data-free="3"></div>
+    </div>
+    <div style="width: 50px">
+    </div>
+    <div id="home-cells">
+        <div class="cell" data-home="0"></div>
+        <div class="cell" data-home="1"></div>
+        <div class="cell" data-home="2"></div>
+        <div class="cell" data-home="3"></div>
+    </div>
 </header>
 <div id="cascades">
-  <div class="cascade cell" data-cascade="0"></div>
-  <div class="cascade cell" data-cascade="1"></div>
-  <div class="cascade cell" data-cascade="2"></div>
-  <div class="cascade cell" data-cascade="3"></div>
-  <div class="cascade cell" data-cascade="4"></div>
-  <div class="cascade cell" data-cascade="5"></div>
-  <div class="cascade cell" data-cascade="6"></div>
-  <div class="cascade cell" data-cascade="7"></div>
+    <div class="cascade cell" data-cascade="0"></div>
+    <div class="cascade cell" data-cascade="1"></div>
+    <div class="cascade cell" data-cascade="2"></div>
+    <div class="cascade cell" data-cascade="3"></div>
+    <div class="cascade cell" data-cascade="4"></div>
+    <div class="cascade cell" data-cascade="5"></div>
+    <div class="cascade cell" data-cascade="6"></div>
+    <div class="cascade cell" data-cascade="7"></div>
 </div>
 <div id="stage"></div>
 </body>
 <script>
 
-  /**
-   * 구성요소
-   *    카드 : 총 52장 (4가지 모양 * 13개 카드)
-   *    무대
-   *      홈셀
-   *      프리셀
-   *      캐스케이드
-   * 게임 방법
-   *    캐스케이드와 프리셀의 카드를 모두 홈셀로 이동
-   * 룰
-   *    홈셀 :
-   *       - 총 적재 가능 수량 : 제한 없음 (논리적으로는 모양이 같은 카드의 총 개수)
-   *       - 적재 가능 카드 : 현재 카드와 모양이 같고, 현재카드의 번호보다 1이 큰 값의 카드
-   *    프리셀 :
-   *       - 총 적재 가능 수량 : 1장
-   *       - 적재 가능 카드 : 모든 카드
-   *    캐스케이드 :
-   *       - 총 적재 가능 수량 : 제한 없음 (논리적으로는 모든 카드의 개수)
-   *       - 적재 가능 카드 : 현재 카드와 색상이 다르고 현재카드의 번호보다 1이 큰 값의 카드
-   *       - 한번에 드래그 가능 수량 : 프리셀의 빈 데크 수량,
-   *       - 한번에 드롭 가능 수량 : 제한 없음
-   * 게임 시작
-   *   초기상태
-   *    홈셀 : 없음
-   *    프리셀 : 없음
-   *    캐스케이드: 카드 수량을 나누어 랜덤으로 배열함
-   * 게임 끝
-   *  캐스케이드와 프리셀의 카드를 모두 홈셀로 이동하면 끝
-   * */
+    /**
+     * 구성요소
+     *    카드 : 총 52장 (4가지 모양 * 13개 카드)
+     *    무대
+     *      홈셀
+     *      프리셀
+     *      캐스케이드
+     * 게임 방법
+     *    캐스케이드와 프리셀의 카드를 모두 홈셀로 이동
+     * 룰
+     *    홈셀 :
+     *       - 총 적재 가능 수량 : 제한 없음 (논리적으로는 모양이 같은 카드의 총 개수)
+     *       - 적재 가능 카드 : 현재 카드와 모양이 같고, 현재카드의 번호보다 1이 큰 값의 카드
+     *    프리셀 :
+     *       - 총 적재 가능 수량 : 1장
+     *       - 적재 가능 카드 : 모든 카드
+     *    캐스케이드 :
+     *       - 총 적재 가능 수량 : 제한 없음 (논리적으로는 모든 카드의 개수)
+     *       - 적재 가능 카드 : 현재 카드와 색상이 다르고 현재카드의 번호보다 1이 큰 값의 카드
+     *       - 한번에 드래그 가능 수량 : 프리셀의 빈 데크 수량,
+     *       - 한번에 드롭 가능 수량 : 제한 없음
+
+
+
+     * 게임 시작
+     *   초기상태
+     *    홈셀 : 없음 ok
+     *    프리셀 : 없음 ok
+     *    캐스케이드: 카드 수량을 나누어 랜덤으로 배열함 ok
+     *      추가(캐스케이드에 추가로 지정)
+     * 게임 끝
+     *  캐스케이드와 프리셀의 카드를 모두 홈셀로 이동하면 끝 ok
+     * */
+
+    class Game {
+        constructor(props) {
+            this.homeCell = [];
+            this.freeCell = [];
+            let cascade = [...Array(8)].map(n => Array());
+            this.cardTypes = ["♥", "◆", "♣", "♠"];
+            this.cardTexts = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+            this.cards = this.cardTypes.reduce((cards, type) => {
+                this.cardTexts.forEach(text => {
+                    cards.push({
+                        type,
+                        text
+                    })
+                })
+                return cards;
+            }, []);
+        }
+
+        checkIsFinished() {
+            const isFinished = this.cards.length === this.homeCell.length;
+            if (isFinished) {
+                this.finish();
+            } else {
+                console.log("안 끝남")
+            }
+        }
+
+        start() {
+            this.homeCell = [];
+            this.freeCell = [];
+            let cascade = [...Array(8)].map(n => []);
+            this.cards.forEach((card) => {
+                const colNum = Math.floor((Math.random() * 8));
+                cascade[colNum].push(card);
+            });
+
+            this.checkIsFinished();
+        }
+
+        finish() {
+            console.log(" 끝")
+        }
+
+
+    }
+
+    new Game().start();
 </script>
+<script src="script.js"></script>
 </html>
