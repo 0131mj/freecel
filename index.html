@@ -150,8 +150,8 @@
             this.cascades = this.makeBlankArrays(8);
             this.cardTypes = ["♥", "◆", "♣", "♠"];
             this.cardTexts = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
-            this.cards = this.cardTypes.reduce((cards, type) => {
-                this.cardTexts.forEach(text => {
+            this.cards = this.cardTexts.reduce((cards, text) => {
+                this.cardTypes.forEach(type => {
                     cards.push({
                         type,
                         text,
@@ -177,6 +177,10 @@
             this.movingCards = [];
             this.getDetachableCards();
             console.log(this);
+        }
+
+        getColorFromShape(type){
+            return ["♣", "♠"].includes(type) ? "black": "red";
         }
 
         /**
@@ -207,7 +211,13 @@
                     } else {
                         const prevIndex = this.cardTexts.indexOf(prevCard.text);
                         const cardIndex = this.cardTexts.indexOf(card.text);
-                        const detachable = prevIndex + 1 === cardIndex;
+                        const isLinear = prevIndex + 1 === cardIndex;
+
+                        const prevColor = this.getColorFromShape(prevCard.type);
+                        const cardColor = this.getColorFromShape(card.type);
+                        const isDiffColor = prevColor !== cardColor;
+
+                        const detachable = isLinear && isDiffColor;
                         card.detachable = detachable;
                         if (!detachable) {
                             break;
