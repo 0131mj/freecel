@@ -145,31 +145,88 @@
 
     class Game {
         constructor(props) {
-            this.homeCell = [];
-            this.freeCell = [];
-            this.cascade = [...Array(8)].map(n => Array());
+            this.homeCells = this.makeBlankArrays(4);
+            this.freeCells = this.makeBlankArrays(4);
+            this.cascades = this.makeBlankArrays(8);
             this.cardTypes = ["♥", "◆", "♣", "♠"];
             this.cardTexts = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
             this.cards = this.cardTypes.reduce((cards, type) => {
                 this.cardTexts.forEach(text => {
                     cards.push({
                         type,
-                        text
+                        text,
+                        detachable: false,
                     })
                 })
                 return cards;
             }, []);
+            this.movingCards = [];
         }
 
+        makeBlankArrays = (length) => [...Array(length)].map(n => []);
 
         start() {
-            this.homeCell = [];
-            this.freeCell = [];
-            this.cascade = [...Array(8)].map(n => []);
-            this.cards.forEach((card) => {
-                const colNum = Math.floor((Math.random() * 8));
-                this.cascade[colNum].push(card);
+            this.homeCells = this.makeBlankArrays(4);
+            this.freeCells = this.makeBlankArrays(4);
+            this.cascades = this.makeBlankArrays(8);
+            this.cards.reverse().forEach((card) => {
+                const colNum = Math.floor((Math.random() * this.cascades.length));
+                this.cascades[colNum].push(card);
+                // console.log(card, colNum)
             });
+            this.movingCards = [];
+            this.getDetachableCards();
+            console.log(this);
+        }
+
+        /**
+         * 떼어낼 수 있는 카드들을 찾아 속성 변경 처리
+         */
+        getDetachableCards() {
+            // - 홈셀: 모든 카드 하나씩
+            this.homeCells.forEach(homeCell => {
+                homeCell.forEach(card => {
+                    card.detachable = true;
+                })
+            });
+            // - 프리셀: 모든 카드 하나씩
+            this.freeCells.forEach(freeCell => {
+                if (freeCell[freeCell.length - 1]) {
+                    freeCell[freeCell.length - 1].detachable = true;
+                }
+            });
+            // - 캐스케이드: 맨 아래에서부터 ~ 색이 다르고 숫자가 1씩 감소하는 카드까지만 (1~n)
+            this.cascades.forEach(cascade => {
+                let prevCard = null;
+                let idx = cascade.length;
+                while (idx >= 0) {
+                    console.log(idx);
+                    const card = cascade[idx-1];
+                    if (!prevCard) {
+                        card.detachable = true;
+                    } else {
+                        const prevIndex = this.cardTexts.indexOf(prevCard.text);
+                        const cardIndex = this.cardTexts.indexOf(card.text);
+                        const detachable = prevIndex + 1 === cardIndex;
+                        card.detachable = detachable;
+                        if (!detachable) {
+                            break;
+                        }
+                    }
+                    prevCard = card;
+                    idx--;
+                }
+            })
+        }
+
+        detach() {
+
+        }
+
+        getAttachableZone() {
+            // - 홈셀 : 카드 1개만, 비어있을 경우 A만,
+            // - 프리셀 : 카드 1개만 (어떤 카드든)
+            // - 캐스케이드: moving 카드가 쌓여있던 카드의 마지막 카드에서 색이 다르고 숫자가 1 감소하는 카드로 끝나는 더미만
         }
 
         checkMovable() {
@@ -185,14 +242,13 @@
              * 3. checkAttachable => detach & attach
              * **/
             // detachable card :
-            // 홈셀: 모든 카드 하나씩
-            // 프리셀: 모든 카드 하나씩
-            // 캐스케이드: 맨 아래에서 색이 다르고 숫자가 1씩 감소하는 카드까지만 (1~n)
+            // 결정시점 - 매번 카드가 옮겨진 후
+            this.getDetachableCards();
 
-            // attachable:
-            // 홈셀 : 카드 1개만, 비어있을 경우 A만,
-            // 프리셀 : 카드 1개만 (어떤카드든)
-            // 캐스케이드: moving 카드가 쌓여있던 카드의 마지막 카드에서 색이 다르고 숫자가 1 감소하는 카드로 끝나는 더미만
+            // attachable area:
+            // 결정시점 - detachable card 변경 후
+            this.getAttachableZone();
+
         }
 
         move() {
@@ -210,7 +266,8 @@
         }
 
         checkIsFinished() {
-            const isFinished = this.cards.length === this.homeCell.length;
+            const homeCellTotalCardCnt = this.homeCells.reduce((totalCnt, homeCell) => totalCnt + homeCell.length, 0)
+            const isFinished = this.cards.length === homeCellTotalCardCnt;
             if (isFinished) {
                 this.finish();
             } else {
