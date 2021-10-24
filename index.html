@@ -145,9 +145,18 @@
 
     class Game {
         constructor(props) {
-            this.homeCells = this.makeBlankArrays(4);
-            this.freeCells = this.makeBlankArrays(4);
-            this.cascades = this.makeBlankArrays(8);
+            this.homeCells = {
+                attachable: false,
+                fields : this.makeBlankArrays(4)
+            };
+            this.freeCells = {
+                attachable: false,
+                fields : this.makeBlankArrays(4)
+            };
+            this.cascades = {
+                attachable: false,
+                fields : this.makeBlankArrays(8)
+            };
             this.cardTypes = ["♥", "◆", "♣", "♠"];
             this.cardTexts = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
             this.cards = this.cardTexts.reduce((cards, text) => {
@@ -166,12 +175,21 @@
         makeBlankArrays = (length) => [...Array(length)].map(n => []);
 
         start() {
-            this.homeCells = this.makeBlankArrays(4);
-            this.freeCells = this.makeBlankArrays(4);
-            this.cascades = this.makeBlankArrays(8);
+            this.homeCells = {
+                attachable: false,
+                fields : this.makeBlankArrays(4)
+            };
+            this.freeCells = {
+                attachable: false,
+                fields : this.makeBlankArrays(4)
+            };
+            this.cascades = {
+                attachable: false,
+                fields : this.makeBlankArrays(8)
+            };
             this.cards.reverse().forEach((card) => {
-                const colNum = Math.floor((Math.random() * this.cascades.length));
-                this.cascades[colNum].push(card);
+                const colNum = Math.floor((Math.random() * this.cascades.fields.length));
+                this.cascades.fields[colNum].push(card);
                 // console.log(card, colNum)
             });
             this.movingCards = [];
@@ -179,8 +197,8 @@
             console.log(this);
         }
 
-        getColorFromShape(type){
-            return ["♣", "♠"].includes(type) ? "black": "red";
+        getColorFromShape(type) {
+            return ["♣", "♠"].includes(type) ? "black" : "red";
         }
 
         /**
@@ -188,24 +206,23 @@
          */
         getDetachableCards() {
             // - 홈셀: 모든 카드 하나씩
-            this.homeCells.forEach(homeCell => {
+            this.homeCells.fields.forEach(homeCell => {
                 homeCell.forEach(card => {
                     card.detachable = true;
                 })
             });
             // - 프리셀: 모든 카드 하나씩
-            this.freeCells.forEach(freeCell => {
+            this.freeCells.fields.forEach(freeCell => {
                 if (freeCell[freeCell.length - 1]) {
                     freeCell[freeCell.length - 1].detachable = true;
                 }
             });
             // - 캐스케이드: 맨 아래에서부터 ~ 색이 다르고 숫자가 1씩 감소하는 카드까지만 (1~n)
-            this.cascades.forEach(cascade => {
+            this.cascades.fields.forEach(cascade => {
                 let prevCard = null;
-                let idx = cascade.length;
+                let idx = cascade.length - 1;
                 while (idx >= 0) {
-                    console.log(idx);
-                    const card = cascade[idx-1];
+                    const card = cascade[idx];
                     if (!prevCard) {
                         card.detachable = true;
                     } else {
@@ -229,8 +246,12 @@
             })
         }
 
-        detach() {
+        preDetach(cards) {
+            this.movingCards = cards;
+        }
 
+        rollBack() {
+            this.movingCards = [];
         }
 
         getAttachableZone() {
@@ -267,6 +288,9 @@
         }
 
         checkIsFailed() {
+            /**
+             * 이동 할 수 있는 카드가 없다고 판단하기
+             * **/
             const isFailed = false;
             if (isFailed) {
                 this.fail();
