@@ -1,0 +1,67 @@
+body {
+    background-color: green;
+}
+
+#stage {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.cell {
+    width: 86px;
+    height: 128px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    margin: 4px;
+}
+
+header {
+    display: flex;
+    justify-content: center;
+}
+
+#free-cells {
+    display: flex;
+}
+
+#home-cells {
+    display: flex;
+}
+
+#cascades {
+    display: flex;
+    justify-content: center;
+}
+
+.cascade {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+}
+
+.card {
+    margin: 4px;
+    border-radius: 4px;
+    /*padding: 30px;*/
+    font-size: 26px;
+    font-weight: bold;
+    background-color: #aaa;
+    display: flex;
+    /*flex-direction: column;*/
+    justify-content: center;
+}
+
+.draggable {
+    background-color: #fff;
+    cursor: move;
+}
+
+.droppable {
+    background-color: yellow;
+    height: 100%;
+    padding-bottom: 60px;
+}
+
+.drag-handler {
+    padding-bottom: 20px;
+}
