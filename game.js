@@ -20,7 +20,6 @@
  *       - 한번에 드래그 가능 수량 : 프리셀의 빈 데크 수량,
  *       - 한번에 드롭 가능 수량 : 제한 없음
 
-
  * 떼냄 가능 여부는 카드별로 판단,
  * 붙임 가능 여부는 필드별로 판단
 
@@ -32,6 +31,9 @@
  *      추가(캐스케이드에 추가로 지정)
  * 게임 끝
  *  캐스케이드와 프리셀의 카드를 모두 홈셀로 이동하면 끝 ok
+ *
+ *  프로세스
+ *  START / (RUN / CHECK_RESULT) / FINISH
  * */
 
 class Game {
@@ -74,6 +76,8 @@ class Game {
         this.getAttachableZone();
         console.log(this);
     }
+
+    /** Check :: 상태 확인 **/
     checkIsFailed() {
         /**
          * 이동 할 수 있는 카드가 없다고 판단하기
@@ -94,8 +98,6 @@ class Game {
             console.log("안 끝남")
         }
     }
-
-    /** Check :: 상태 확인 **/
     getColorFromShape(type) {
         return ["♣", "♠"].includes(type) ? "black" : "red";
     }
