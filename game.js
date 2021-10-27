@@ -33,8 +33,19 @@
  *  캐스케이드와 프리셀의 카드를 모두 홈셀로 이동하면 끝 ok
  *
  *  프로세스
- *  START / (RUN / CHECK_RESULT) / FINISH
+ *  START / (READY / RUN / CHECK_RESULT) / FINISH
  * */
+
+const zone = {
+    freeCell: [],
+    homeCell: [[],[],[],[]],
+    cascade: [[],[],[],[],[],[],[],[],[]],
+}
+
+const cards = {
+    A__heart: zone.freeCell[0],
+    A__clover: zone.freeCell[1],
+}
 
 class Game {
     constructor(props) {
@@ -54,6 +65,33 @@ class Game {
             return cards;
         }, []);
         this.movingCards = [];
+    }
+
+    init(){
+        // update CardState and zone
+            // check takeEnable card
+        // __render
+    }
+
+    run(){
+        // onTakeCard
+            // checkPutEnableArea
+            // __render
+        // onPutCard
+            // moveCard
+            // update CardState and zone
+                //  check takeEnable card
+            // checkResult
+                // win
+                // lose
+            // __render
+    }
+
+
+
+    checkResult(){
+        let checkIsWin = false;
+        let checkIsLose = false;
     }
 
     /** Process :: 전체 흐름 제어 **/
