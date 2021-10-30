@@ -236,10 +236,18 @@ class Game {
     preDetach(cards) {
         this.movingCards = cards;
     }
+    detach(){
+
+    }
+    attach(){
+
+    }
     rollBack() {
         this.movingCards = [];
     }
     move() {
+        this.detach();
+        this.attach();
         this.checkIsFailed();
         this.checkIsFinished();
     }
