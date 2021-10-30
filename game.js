@@ -38,8 +38,8 @@
 
 const zone = {
     freeCell: [],
-    homeCell: [[],[],[],[]],
-    cascade: [[],[],[],[],[],[],[],[],[]],
+    homeCell: [[], [], [], []],
+    cascade: [[], [], [], [], [], [], [], [], []],
 }
 
 const cards = {
@@ -67,29 +67,28 @@ class Game {
         this.movingCards = [];
     }
 
-    init(){
+    init() {
         // update CardState and zone
-            // check takeEnable card
+        // check takeEnable card
         // __render
     }
 
-    run(){
+    run() {
         // onTakeCard
-            // checkPutEnableArea
-            // __render
+        // checkPutEnableArea
+        // __render
         // onPutCard
-            // moveCard
-            // update CardState and zone
-                //  check takeEnable card
-            // checkResult
-                // win
-                // lose
-            // __render
+        // moveCard
+        // update CardState and zone
+        //  check takeEnable card
+        // checkResult
+        // win
+        // lose
+        // __render
     }
 
 
-
-    checkResult(){
+    checkResult() {
         let checkIsWin = false;
         let checkIsLose = false;
     }
@@ -99,6 +98,7 @@ class Game {
         attachable: false,
         fields: [],
     }));
+
     start() {
         this.homeCells = this.makeBlankFields(4);
         this.freeCells = this.makeBlankFields(4);
@@ -110,9 +110,14 @@ class Game {
         });
         this.movingCards = [];
         this.getDetachableCards();
-        this.preDetach([this.cascades[0].fields[this.cascades[0].fields.length - 1]]);
+        this.preDetach([this.cascades[0].fields[this.cascades[0].fields.length - 1]], this.cascades[0]);
         this.getAttachableZone();
-        console.log(this);
+        this.attach(this.cascades[1])
+        console.log(this.cascades);
+        setTimeout(() => {
+            this.detach();
+            console.log(this.cascades);
+        }, 5000)
     }
 
     /** Check :: 상태 확인 **/
@@ -127,6 +132,7 @@ class Game {
             console.log("안 실패")
         }
     }
+
     checkIsFinished() {
         const homeCellTotalCardCnt = this.homeCells.reduce((totalCnt, homeCell) => totalCnt + homeCell.length, 0)
         const isFinished = this.cards.length === homeCellTotalCardCnt;
@@ -136,9 +142,11 @@ class Game {
             console.log("안 끝남")
         }
     }
+
     getColorFromShape(type) {
         return ["♣", "♠"].includes(type) ? "black" : "red";
     }
+
     /**
      * 떼어낼 수 있는 카드들을 찾아 속성 변경 처리
      */
@@ -183,6 +191,7 @@ class Game {
             }
         })
     }
+
     getAttachableZone() {
         const firstMovingCard = this.movingCards[0];
         const firstMovingCardIndex = firstMovingCard && this.cardTexts.indexOf(firstMovingCard.text);
@@ -233,18 +242,26 @@ class Game {
     }
 
     /** Actions :: 카드 이동 및 변화 **/
-    preDetach(cards) {
+    preDetach(cards, from) {
         this.movingCards = cards;
+        this.from = from;
     }
-    detach(){
 
+    detach() {
+        this.from.fields = this.from.fields.splice(0, this.from.fields.length - this.movingCards.length);
     }
-    attach(){
 
+    attach(destination) {
+        destination.fields = [
+            ...destination.fields,
+            ...this.movingCards
+        ];
     }
+
     rollBack() {
         this.movingCards = [];
     }
+
     move() {
         this.detach();
         this.attach();
@@ -255,3 +272,24 @@ class Game {
 }
 
 new Game().start();
+
+// class Game {
+//     constructor(props) {
+//         this.cardTypes = new Set(["♥", "◆", "♣", "♠"]);
+//         this.cardTexts = new Set(["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]);
+//         this.cards = new Map();
+//         this.cardKeys = new Set();
+//         for (const text of this.cardTexts) {
+//             for (const type of this.cardTypes) {
+//                 this.cards.set(`${text}__${type}`, null);
+//                 this.cardKeys.add(`${text}__${type}`);
+//             }
+//         }
+//         console.log(this.cards)
+//         console.log(this.cardKeys)
+//     }
+//
+//     start() {
+//
+//     }
+// }
