@@ -110,14 +110,15 @@ class Game {
         });
         this.movingCards = [];
         this.getDetachableCards();
-        this.preDetach([this.cascades[0].fields[this.cascades[0].fields.length - 1]], this.cascades[0]);
-        this.getAttachableZone();
-        this.attach(this.cascades[1])
+        // this.preDetach([this.cascades[0].fields[this.cascades[0].fields.length - 1]], this.cascades[0]);
+        // this.getAttachableZone();
+        // this.attach(this.cascades[1])
         console.log(this.cascades);
-        setTimeout(() => {
-            this.detach();
-            console.log(this.cascades);
-        }, 5000)
+        this.render();
+        // setTimeout(() => {
+        //     this.detach();
+        //     console.log(this.cascades);
+        // }, 5000)
     }
 
     /** Check :: 상태 확인 **/
@@ -267,6 +268,46 @@ class Game {
         this.attach();
         this.checkIsFailed();
         this.checkIsFinished();
+    }
+
+    render() {
+        document.body.innerHTML = "";
+        const movingCardsContainer = document.createElement("section");
+        const movingCards = this.movingCards.reduce((cards, card) => {
+            const _card = document.createElement("div");
+            _card.innerHTML = `${card.text}_${card.type}`;
+            cards.appendChild(_card);
+            return cards;
+        }, movingCardsContainer);
+
+
+        const cascadeContainer = document.createElement("section");
+        cascadeContainer.style.display = "flex"
+        const cascades = this.cascades.reduce((cascade, columns, index) => {
+            const columnWrapper = document.createElement("div");
+            // columnWrapper.innerHTML = "COLUMN";
+            const column = columns.fields.reduce((col, row)=>{
+                const cardEl = document.createElement("div");
+                const {type, text, detachable} = row;
+                cardEl.innerHTML = `${type}_${text}`;
+                cardEl.style.margin = '8px 16px';
+                cardEl.style.padding = '4px 8px';
+                cardEl.style.color = this.getColorFromShape(type);
+                cardEl.style.backgroundColor= detachable ? "#fff" : "#888";
+                cardEl.addEventListener("click",()=>{
+                    console.log("click!");
+                    this.preDetach([row], this.cascades[index]);
+                    console.log(this);
+                    this.render();
+                })
+                col.appendChild(cardEl);
+                return col;
+            }, columnWrapper);
+            cascade.appendChild(column);
+            return cascade;
+        }, cascadeContainer)
+        document.body.appendChild(cascades);
+        document.body.appendChild(movingCards);
     }
 
 }
