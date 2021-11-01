@@ -284,11 +284,17 @@ class Game {
         const cascadeContainer = document.createElement("section");
         cascadeContainer.style.display = "flex"
         const cascades = this.cascades.reduce((cascade, columns, index) => {
-            const columnWrapper = document.createElement("div");
+            const columnWrapper = document.createElement("article");
+            columnWrapper.classList.add("column-wrapper")
             // columnWrapper.innerHTML = "COLUMN";
-            const column = columns.fields.reduce((col, row)=>{
+            const column = columns.fields.reverse().reduce((col, card)=>{
+                const wrapper = document.createElement("div");
+                wrapper.classList.add("row-wrapper");
+
+                const {type, text, detachable} = card;
+                wrapper.setAttribute("draggable", detachable);
+
                 const cardEl = document.createElement("div");
-                const {type, text, detachable} = row;
                 cardEl.innerHTML = `${type}_${text}`;
                 cardEl.style.margin = '8px 16px';
                 cardEl.style.padding = '4px 8px';
@@ -296,12 +302,13 @@ class Game {
                 cardEl.style.backgroundColor= detachable ? "#fff" : "#888";
                 cardEl.addEventListener("click",()=>{
                     console.log("click!");
-                    this.preDetach([row], this.cascades[index]);
+                    this.preDetach([card], this.cascades[index]);
                     console.log(this);
                     this.render();
                 })
-                col.appendChild(cardEl);
-                return col;
+                wrapper.appendChild(cardEl);
+                wrapper.appendChild(col);
+                return wrapper;
             }, columnWrapper);
             cascade.appendChild(column);
             return cascade;
