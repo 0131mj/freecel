@@ -103,7 +103,7 @@ class Game {
         this.homeCells = this.makeBlankFields(4);
         this.freeCells = this.makeBlankFields(4);
         this.cascades = this.makeBlankFields(8);
-        this.cards.reverse().forEach((card) => {
+        this.cards.forEach((card) => {
             const colNum = Math.floor((Math.random() * this.cascades.length));
             this.cascades[colNum].fields.push(card);
             // console.log(card, colNum)
@@ -167,8 +167,8 @@ class Game {
         // - 캐스케이드: 맨 아래에서부터 ~ 색이 다르고 숫자가 1씩 감소하는 카드까지만 (1~n)
         this.cascades.forEach(({fields}) => {
             let prevCard = null;
-            let idx = fields.length - 1;
-            while (idx >= 0) {
+            let idx = 0;
+            while (idx < fields.length) {
                 const card = fields[idx];
                 if (!prevCard) {
                     card.detachable = true;
@@ -188,7 +188,7 @@ class Game {
                     }
                 }
                 prevCard = card;
-                idx--;
+                idx++;
             }
         })
     }
@@ -282,37 +282,38 @@ class Game {
 
 
         const cascadeContainer = document.createElement("section");
-        cascadeContainer.style.display = "flex"
+        cascadeContainer.style.display = "flex";
+
         const cascades = this.cascades.reduce((cascade, columns, index) => {
-            const columnWrapper = document.createElement("article");
-            columnWrapper.classList.add("column-wrapper")
-            // columnWrapper.innerHTML = "COLUMN";
-            const column = columns.fields.reverse().reduce((col, card)=>{
-                const wrapper = document.createElement("div");
-                wrapper.classList.add("row-wrapper");
-
+            const column = columns.fields.reduce((dragStack, card) => {
                 const {type, text, detachable} = card;
-                wrapper.setAttribute("draggable", detachable);
-
                 const cardEl = document.createElement("div");
+                cardEl.classList.add("card");
                 cardEl.innerHTML = `${type}_${text}`;
                 cardEl.style.margin = '8px 16px';
                 cardEl.style.padding = '4px 8px';
                 cardEl.style.color = this.getColorFromShape(type);
-                cardEl.style.backgroundColor= detachable ? "#fff" : "#888";
-                cardEl.addEventListener("click",()=>{
-                    console.log("click!");
+                cardEl.style.backgroundColor = detachable ? "#fff" : "#888";
+                cardEl.addEventListener("click", () => {
                     this.preDetach([card], this.cascades[index]);
-                    console.log(this);
                     this.render();
                 })
-                wrapper.appendChild(cardEl);
-                wrapper.appendChild(col);
-                return wrapper;
-            }, columnWrapper);
+
+                const dragGroup = document.createElement("div");
+                dragGroup.classList.add("drag-group");
+                dragGroup.setAttribute("draggable", String(Boolean(detachable)));
+                dragGroup.dataset.text = `${type}_${text}`;
+
+                dragGroup.appendChild(cardEl);
+                if (dragStack) {
+                    dragGroup.appendChild(dragStack);
+                }
+                return dragGroup;
+            }, null);
             cascade.appendChild(column);
             return cascade;
-        }, cascadeContainer)
+        }, cascadeContainer);
+
         document.body.appendChild(cascades);
         document.body.appendChild(movingCards);
     }
