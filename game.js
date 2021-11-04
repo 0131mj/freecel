@@ -270,6 +270,31 @@ class Game {
         this.checkIsFinished();
     }
 
+    createCascadeCard(card, index){
+        const {type, text, detachable} = card;
+        const cardEl = document.createElement("div");
+        cardEl.classList.add("card");
+        cardEl.innerHTML = `${type}_${text}`;
+        cardEl.style.margin = '8px 16px';
+        cardEl.style.padding = '4px 8px';
+        cardEl.style.color = this.getColorFromShape(type);
+        cardEl.style.backgroundColor = detachable ? "#fff" : "#888";
+        cardEl.addEventListener("click", () => {
+            this.preDetach([card], this.cascades[index]);
+            this.render();
+        });
+        return cardEl;
+    }
+
+    createDragEl(card){
+        const {type, text, detachable} = card;
+        const dragEl = document.createElement("div");
+        dragEl.classList.add("drag-group");
+        dragEl.setAttribute("draggable", String(Boolean(detachable)));
+        dragEl.dataset.text = `${type}_${text}`;
+        return dragEl;
+    }
+
     render() {
         document.body.innerHTML = "";
         const movingCardsContainer = document.createElement("section");
@@ -286,29 +311,13 @@ class Game {
 
         const cascades = this.cascades.reduce((cascade, columns, index) => {
             const column = columns.fields.reduce((dragStack, card) => {
-                const {type, text, detachable} = card;
-                const cardEl = document.createElement("div");
-                cardEl.classList.add("card");
-                cardEl.innerHTML = `${type}_${text}`;
-                cardEl.style.margin = '8px 16px';
-                cardEl.style.padding = '4px 8px';
-                cardEl.style.color = this.getColorFromShape(type);
-                cardEl.style.backgroundColor = detachable ? "#fff" : "#888";
-                cardEl.addEventListener("click", () => {
-                    this.preDetach([card], this.cascades[index]);
-                    this.render();
-                })
-
-                const dragGroup = document.createElement("div");
-                dragGroup.classList.add("drag-group");
-                dragGroup.setAttribute("draggable", String(Boolean(detachable)));
-                dragGroup.dataset.text = `${type}_${text}`;
-
-                dragGroup.appendChild(cardEl);
+                const cardEl = this.createCascadeCard(card, index);
+                const dragEl = this.createDragEl(card);
+                dragEl.appendChild(cardEl);
                 if (dragStack) {
-                    dragGroup.appendChild(dragStack);
+                    dragEl.appendChild(dragStack);
                 }
-                return dragGroup;
+                return dragEl;
             }, null);
             cascade.appendChild(column);
             return cascade;
