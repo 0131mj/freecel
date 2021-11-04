@@ -59,7 +59,6 @@ class Game {
                 cards.push({
                     type,
                     text,
-                    detachable: false,
                 })
             })
             return cards;
@@ -109,7 +108,6 @@ class Game {
             // console.log(card, colNum)
         });
         this.movingCards = [];
-        this.getDetachableCards();
         // this.preDetach([this.cascades[0].fields[this.cascades[0].fields.length - 1]], this.cascades[0]);
         // this.getAttachableZone();
         // this.attach(this.cascades[1])
@@ -146,51 +144,6 @@ class Game {
 
     getColorFromShape(type) {
         return ["♣", "♠"].includes(type) ? "black" : "red";
-    }
-
-    /**
-     * 떼어낼 수 있는 카드들을 찾아 속성 변경 처리
-     */
-    getDetachableCards() {
-        // - 홈셀: 모든 카드 하나씩
-        this.homeCells.forEach(({fields}) => {
-            fields.forEach(card => {
-                card.detachable = true;
-            })
-        });
-        // - 프리셀: 모든 카드 하나씩
-        this.freeCells.forEach(({fields}) => {
-            if (fields[fields.length - 1]) {
-                fields[fields.length - 1].detachable = true;
-            }
-        });
-        // - 캐스케이드: 맨 아래에서부터 ~ 색이 다르고 숫자가 1씩 감소하는 카드까지만 (1~n)
-        this.cascades.forEach(({fields}) => {
-            let prevCard = null;
-            let idx = 0;
-            while (idx < fields.length) {
-                const card = fields[idx];
-                if (!prevCard) {
-                    card.detachable = true;
-                } else {
-                    const prevIndex = this.cardTexts.indexOf(prevCard.text);
-                    const cardIndex = this.cardTexts.indexOf(card.text);
-                    const isLinear = prevIndex + 1 === cardIndex;
-
-                    const prevColor = this.getColorFromShape(prevCard.type);
-                    const cardColor = this.getColorFromShape(card.type);
-                    const isDiffColor = prevColor !== cardColor;
-
-                    const detachable = isLinear && isDiffColor;
-                    card.detachable = detachable;
-                    if (!detachable) {
-                        break;
-                    }
-                }
-                prevCard = card;
-                idx++;
-            }
-        })
     }
 
     getAttachableZone() {
@@ -270,8 +223,8 @@ class Game {
         this.checkIsFinished();
     }
 
-    createCascadeCard(card, index){
-        const {type, text, detachable} = card;
+    createCascadeCard(card, detachable, index) {
+        const {type, text} = card;
         const cardEl = document.createElement("div");
         cardEl.classList.add("card");
         cardEl.innerHTML = `${type}_${text}`;
@@ -286,8 +239,8 @@ class Game {
         return cardEl;
     }
 
-    createDragEl(card){
-        const {type, text, detachable} = card;
+    createDragEl(card, detachable) {
+        const {type, text} = card;
         const dragEl = document.createElement("div");
         dragEl.classList.add("drag-group");
         dragEl.setAttribute("draggable", String(Boolean(detachable)));
@@ -310,16 +263,38 @@ class Game {
         cascadeContainer.style.display = "flex";
 
         const cascades = this.cascades.reduce((cascade, columns, index) => {
-            const column = columns.fields.reduce((dragStack, card) => {
-                const cardEl = this.createCascadeCard(card, index);
-                const dragEl = this.createDragEl(card);
-                dragEl.appendChild(cardEl);
-                if (dragStack) {
-                    dragEl.appendChild(dragStack);
+            const column = columns.fields.reduce((acc, currCard) => {
+                let lastCard = null;
+                if (acc && acc?.cards) {
+                    lastCard = acc?.cards[acc.cards.length - 1];
                 }
-                return dragEl;
+
+                let detachable = !lastCard;
+                if (lastCard && lastCard.detachable) {
+                    const currCascadeCardIndex = this.cardTexts.indexOf(currCard.text);
+                    const lastCascadeCardIndex = this.cardTexts.indexOf(lastCard.text);
+                    const isLinear = lastCascadeCardIndex + 1  === currCascadeCardIndex;
+
+                    const cardColor = this.getColorFromShape(currCard.type);
+                    const prevColor = this.getColorFromShape(lastCard.type);
+                    const isDiffColor = prevColor !== cardColor;
+
+                    detachable = isLinear && isDiffColor;
+                }
+
+                const cardEl = this.createCascadeCard(currCard, detachable, index);
+                const dragEl = this.createDragEl(currCard, detachable);
+                dragEl.appendChild(cardEl);
+                if (acc && acc?.dragEl) {
+                    dragEl.appendChild(acc?.dragEl);
+                }
+
+                return {
+                    dragEl,
+                    cards: (acc?.cards || []).concat([{...currCard, detachable}])
+                };
             }, null);
-            cascade.appendChild(column);
+            cascade.appendChild(column?.dragEl);
             return cascade;
         }, cascadeContainer);
 
