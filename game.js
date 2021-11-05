@@ -223,7 +223,7 @@ class Game {
         this.checkIsFinished();
     }
 
-    createCascadeCard(card, detachable, cascadeIdx, cards) {
+    createCardEl(card, detachable, cascadeIdx, cards) {
         const {type, text} = card;
         const cardEl = document.createElement("div");
         cardEl.classList.add("card");
@@ -232,21 +232,27 @@ class Game {
         cardEl.style.padding = '4px 8px';
         cardEl.style.color = this.getColorFromShape(type);
         cardEl.style.backgroundColor = detachable ? "#fff" : "#888";
-        cardEl.addEventListener("click", () => {
-            this.preDetach(cards, this.cascades[cascadeIdx]);
-            this.render();
-        });
+        // cardEl.addEventListener("click", () => {
+        //     this.preDetach(cards, this.cascades[cascadeIdx]);
+        //     this.render();
+        // });
         return cardEl;
     }
 
-    createDragEl(card, detachable) {
+    createDragEl(card, detachable, cascadeIdx, cards) {
         const dragEl = document.createElement("div");
         dragEl.classList.add("drag-group");
         dragEl.setAttribute("draggable", String(Boolean(detachable)));
 
+
         const {type, text} = card;
         dragEl.dataset.text = `${type}_${text}`;
 
+        dragEl.addEventListener("drag", (e) => {
+            console.log(cards);
+            // this.preDetach(cards, this.cascades[cascadeIdx]);
+            // this.render();
+        });
         return dragEl;
     }
 
@@ -289,8 +295,8 @@ class Game {
                 const lastCard = acc?.cards[acc.cards.length - 1] || null;
                 const detachable = this.checkDetachable(lastCard, currCard);
                 const accCards = (acc?.cards || []).concat([{...currCard, detachable}]);
-                const cardEl = this.createCascadeCard(currCard, detachable, index, accCards);
-                const dragEl = this.createDragEl(currCard, detachable);
+                const cardEl = this.createCardEl(currCard, detachable, index, accCards);
+                const dragEl = this.createDragEl(currCard, detachable, index, accCards);
                 dragEl.appendChild(cardEl);
                 if (acc?.dragEl) {
                     dragEl.appendChild(acc?.dragEl);
