@@ -247,10 +247,20 @@ class Game {
 
         const {type, text} = card;
         dragEl.dataset.text = `${type}_${text}`;
+        dragEl.addEventListener("dragstart", (e) => {
+            e.stopPropagation()
+            this.preDetach(cards, this.cascades[cascadeIdx]);
+            setTimeout(()=>{
+                dragEl.style.opacity = "0";
+            },0)
+            // this.render();
+        });
 
-        dragEl.addEventListener("drag", (e) => {
-            console.log(cards);
-            // this.preDetach(cards, this.cascades[cascadeIdx]);
+        dragEl.addEventListener("dragend", (e) => {
+            e.stopPropagation()
+            setTimeout(()=>{
+                dragEl.style.opacity = "1";
+            },0)
             // this.render();
         });
         return dragEl;
