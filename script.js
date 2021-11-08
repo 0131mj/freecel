@@ -129,10 +129,6 @@ class FreeCell {
 
     };
 
-    onDrop = () => {
-
-    };
-
     onUpload = (card) => {
         this.homeCells.push(card);
     };
@@ -185,6 +181,25 @@ class FreeCell {
         })
     };
 
+    getDroppableCols = (startCard) => {
+        const cols = [];
+        if (!startCard) {
+            return cols;
+        }
+        const target_idx = this.texts.indexOf(startCard.text);
+        const target_color = startCard.color;
+
+        this.cascades.forEach(((col, _i) => {
+            const firstCard = col[0];
+            const {text, color} = firstCard;
+            const i = this.texts.indexOf(text);
+            if (target_color !== color && target_idx + 1 === i) {
+                cols.push(_i)
+            }
+        }));
+        return cols;
+    };
+
     onDrag = (pos) => {
         console.log("onDrag", pos)
         this.pos = pos;
@@ -209,26 +224,7 @@ class FreeCell {
 //            }
     };
 
-    getDroppableCols = (startCard) => {
-        const cols = [];
-        if (!startCard) {
-            return cols;
-        }
-        const target_idx = this.texts.indexOf(startCard.text);
-        const target_color = startCard.color;
-
-        this.cascades.forEach(((col, _i) => {
-            const firstCard = col[0];
-            const {text, color} = firstCard;
-            const i = this.texts.indexOf(text);
-            if (target_color !== color && target_idx + 1 === i) {
-                cols.push(_i)
-            }
-        }));
-        return cols;
-    };
-
-    dropCard = (cascadeIndex) => {
+    onDrop = (cascadeIndex) => {
         const fromCascade = this.cascades[this.pos.col];
         fromCascade.splice(0, this.draggingCards.length); // 제거하기
         this.cascades[cascadeIndex] = this.draggingCards.concat(this.cascades[cascadeIndex]); // 추가하기
@@ -244,7 +240,6 @@ class FreeCell {
         this.checkDraggableCards();
         this.render();
     };
-
 
     render = () => {
 //            console.log(this.cards);
@@ -328,8 +323,10 @@ class FreeCell {
             el.addEventListener("dragstart", (e) => {
                 e.stopPropagation();
                 const {row, col} = e.currentTarget.dataset;
+                setTimeout(()=>{
+                    el.style.opacity = "0";
+                },0)
                 console.log("drag", e.currentTarget, row, col)
-
                 this.onDrag({row, col})
             })
             el.addEventListener("dragover", (e) => {
@@ -340,7 +337,7 @@ class FreeCell {
                 e.preventDefault();
                 e.stopPropagation();
                 const {row, col} = el.dataset;
-                this.dropCard(Number(col));
+                this.onDrop(Number(col));
 //                    console.log("드랍", e, el);
 //                    console.log("드랍", e, el.dataset);
             })

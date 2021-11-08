@@ -181,6 +181,7 @@ class Game {
         // - 캐스케이드: moving 카드가 쌓여있던 카드의 마지막 카드에서 색이 다르고 숫자가 1 감소하는 카드로 끝나는 더미만
         this.cascades.forEach((cascade, index) => {
 
+            const cascadeEl = document.querySelectorAll("#cascades > .drag-group");
             let attachable = false;
             if (cascade.fields.length < 1) {
                 attachable = true;
@@ -197,15 +198,14 @@ class Game {
 
                 if (isLinear && isDiffColor) {
                     attachable = true;
-
-                    console.log('____');
+                    console.log();
+                    cascadeEl[index].classList.add('droppable');
+                    cascadeEl[index].setAttribute("droppable", true);
                 }
             }
             if (attachable) {
                 cascade.attachable = true;
-
             }
-            console.log(index, cascade);
         })
     }
 
@@ -257,7 +257,6 @@ class Game {
         const dragEl = document.createElement("div");
         dragEl.classList.add("drag-group");
         dragEl.setAttribute("draggable", String(Boolean(detachable)));
-
 
         const {type, text} = card;
         dragEl.dataset.text = `${type}_${text}`;
