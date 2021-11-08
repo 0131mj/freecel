@@ -146,10 +146,11 @@ class Game {
         return ["♣", "♠"].includes(type) ? "black" : "red";
     }
 
+    /** 렌더 포함 */
     getAttachableZone() {
-        const firstMovingCard = this.movingCards[0];
-        const firstMovingCardIndex = firstMovingCard && this.cardTexts.indexOf(firstMovingCard.text);
-        const firstMovingCardType = firstMovingCard && firstMovingCard.type;
+        const lastMovingCard = this.movingCards[this.movingCards.length - 1];
+        const lastMovingCardIndex = lastMovingCard && this.cardTexts.indexOf(lastMovingCard.text);
+        const lastMovingCardType = lastMovingCard && lastMovingCard.type;
 
         // - 홈셀 : 카드 1개만, 비어있을 경우 A만,
         this.homeCells.forEach(homeCell => {
@@ -158,10 +159,10 @@ class Game {
             } else if (homeCell.fields.length > 0) {
                 // 이어지는 카드이면 true;
                 const lastHomeCard = homeCell.fields[homeCell.fields.length - 1];
-                const isSameType = lastHomeCard.type === firstMovingCardType;
+                const isSameType = lastHomeCard.type === lastMovingCardType;
                 const lastHomeCardIndex = this.cardTexts.indexOf(lastHomeCard.text);
 
-                const isLinear = lastHomeCardIndex + 1 === firstMovingCardIndex;
+                const isLinear = lastHomeCardIndex + 1 === lastMovingCardIndex;
                 if (isSameType && isLinear) {
                     homeCell.attachable = true;
                 }
@@ -178,20 +179,33 @@ class Game {
         })
 
         // - 캐스케이드: moving 카드가 쌓여있던 카드의 마지막 카드에서 색이 다르고 숫자가 1 감소하는 카드로 끝나는 더미만
-        this.cascades.forEach((cascade) => {
-            if (cascade.fields.length < 1) {
-                cascade.attachable = true;
-            } else {
-                const lastCascadeCard = cascade.fields[cascade.fields.length - 1];
-                const lastCascadeCardIndex = this.cardTexts.indexOf(lastCascadeCard.text);
-                const isLinear = lastCascadeCardIndex === firstMovingCardIndex + 1;
+        this.cascades.forEach((cascade, index) => {
 
-                const isDiffColor = this.getColorFromShape(lastCascadeCard.type) !== this.getColorFromShape(firstMovingCard.type);
+            let attachable = false;
+            if (cascade.fields.length < 1) {
+                attachable = true;
+            } else {
+
+                const bottomCascadeCard = cascade.fields[0];
+                if(!bottomCascadeCard){
+                    debugger;
+                }
+                const lastCascadeCardIndex = this.cardTexts.indexOf(bottomCascadeCard.text);
+                const isLinear = lastCascadeCardIndex === lastMovingCardIndex + 1;
+
+                const isDiffColor = this.getColorFromShape(bottomCascadeCard.type) !== this.getColorFromShape(lastMovingCard.type);
 
                 if (isLinear && isDiffColor) {
-                    cascade.attachable = true;
+                    attachable = true;
+
+                    console.log('____');
                 }
             }
+            if (attachable) {
+                cascade.attachable = true;
+
+            }
+            console.log(index, cascade);
         })
     }
 
@@ -250,17 +264,17 @@ class Game {
         dragEl.addEventListener("dragstart", (e) => {
             e.stopPropagation()
             this.preDetach(cards, this.cascades[cascadeIdx]);
-            setTimeout(()=>{
+            setTimeout(() => {
                 dragEl.style.opacity = "0";
-            },0)
-            // this.render();
+            }, 0);
+            this.getAttachableZone();
         });
 
         dragEl.addEventListener("dragend", (e) => {
             e.stopPropagation()
-            setTimeout(()=>{
+            setTimeout(() => {
                 dragEl.style.opacity = "1";
-            },0)
+            }, 0);
             // this.render();
         });
         return dragEl;
@@ -299,6 +313,7 @@ class Game {
 
         const cascadeContainer = document.createElement("section");
         cascadeContainer.style.display = "flex";
+        cascadeContainer.setAttribute("id", "cascades");
 
         const cascades = this.cascades.reduce((cascade, columns, index) => {
             const column = columns.fields.reduce((acc, currCard) => {
