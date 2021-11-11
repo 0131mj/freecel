@@ -49,8 +49,8 @@ const cards = {
 
 class Game {
     constructor(props) {
+        this.freeCells = new Array(4).fill(undefined);
         this.homeCells = this.makeBlankFields(4);
-        this.freeCells = this.makeBlankFields(4);
         this.cascades = this.makeBlankFields(8);
         this.cardTypes = ["♥", "◆", "♣", "♠"];
         this.cardTexts = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
@@ -99,8 +99,8 @@ class Game {
     }));
 
     start() {
+        this.freeCells = new Array(4).fill(undefined);
         this.homeCells = this.makeBlankFields(4);
-        this.freeCells = this.makeBlankFields(4);
         this.cascades = this.makeBlankFields(8);
         this.cards.forEach((card) => {
             const colNum = Math.floor((Math.random() * this.cascades.length));
@@ -172,16 +172,18 @@ class Game {
         })
 
         // - 프리셀 : 카드 1개만 (어떤 카드든)
-        this.freeCells.forEach((freeCell) => {
-            if (freeCell.fields.length < 1) {
-                freeCell.attachable = true;
+        this.freeCells.forEach((freeCell, index) => {
+            const freeCellEl = document.querySelector(`#freeCells > .free-cell:nth-child(${index+1})`);
+            if (!freeCell) {
+                freeCellEl.classList.add("droppable");
+                freeCellEl.style.backgroundColor = "yellowgreen"
             }
         })
 
         // - 캐스케이드: moving 카드가 쌓여있던 카드의 마지막 카드에서 색이 다르고 숫자가 1 감소하는 카드로 끝나는 더미만
         this.cascades.forEach((cascade, index) => {
 
-            const cascadeEl = document.querySelectorAll("#cascades > .drag-group");
+            const cascadeEls = document.querySelectorAll("#cascades > .drag-group");
             let attachable = false;
             if (cascade.fields.length < 1) {
                 attachable = true;
@@ -199,8 +201,8 @@ class Game {
                 if (isLinear && isDiffColor) {
                     attachable = true;
                     console.log();
-                    cascadeEl[index].classList.add('droppable');
-                    cascadeEl[index].setAttribute("droppable", true);
+                    cascadeEls[index].classList.add('droppable');
+                    cascadeEls[index].setAttribute("droppable", true);
                 }
             }
             if (attachable) {
@@ -322,15 +324,45 @@ class Game {
 
     render() {
         document.body.innerHTML = "";
-        const movingCardsContainer = document.createElement("section");
-        const movingCards = this.movingCards.reduce((cards, card) => {
-            const _card = document.createElement("div");
-            _card.innerHTML = `${card.text}_${card.type}`;
-            cards.appendChild(_card);
-            return cards;
-        }, movingCardsContainer);
+
+        /** Free Cell **/
+        const freeCellContainer = document.createElement("section");
+        freeCellContainer.style.display = "flex";
+        freeCellContainer.setAttribute("id", "freeCells");
+
+        const freecells = this.freeCells.reduce((freeCellsEl, column, index) => {
+            const freeCellEl = document.createElement("div");
+            freeCellEl.style.width = "100px";
+            freeCellEl.style.height = "100px";
+            freeCellEl.style.margin = "8px";
+            freeCellEl.style.padding = "8px";
+            freeCellEl.style.backgroundColor = "pink";
+            freeCellEl.classList.add("free-cell");
 
 
+            freeCellsEl.appendChild(freeCellEl);
+            // const column = columns.fields.reduce((acc, currCard) => {
+            //     const lastCard = acc?.cards[acc.cards.length - 1] || null;
+            //     const detachable = this.checkDetachable(lastCard, currCard);
+            //     const accCards = (acc?.cards || []).concat([{...currCard, detachable}]);
+            //     const cardEl = this.createCardEl(currCard, detachable, index, accCards);
+            //     const dragEl = this.createDragEl(currCard, detachable, index, accCards);
+            //     dragEl.appendChild(cardEl);
+            //     if (acc?.dragEl) {
+            //         dragEl.appendChild(acc?.dragEl);
+            //     }
+            //     return {
+            //         dragEl,
+            //         cards: accCards
+            //     };
+            // }, null);
+            // cascade.appendChild(column?.dragEl);
+            return freeCellsEl;
+        }, freeCellContainer);
+        document.body.appendChild(freecells);
+
+
+        /** Cascade **/
         const cascadeContainer = document.createElement("section");
         cascadeContainer.style.display = "flex";
         cascadeContainer.setAttribute("id", "cascades");
@@ -354,8 +386,16 @@ class Game {
             cascade.appendChild(column?.dragEl);
             return cascade;
         }, cascadeContainer);
-
         document.body.appendChild(cascades);
+
+        /** Moving Cards **/
+        const movingCardsContainer = document.createElement("section");
+        const movingCards = this.movingCards.reduce((cards, card) => {
+            const _card = document.createElement("div");
+            _card.innerHTML = `${card.text}_${card.type}`;
+            cards.appendChild(_card);
+            return cards;
+        }, movingCardsContainer);
         document.body.appendChild(movingCards);
     }
 
