@@ -188,7 +188,7 @@ class Game {
             } else {
 
                 const bottomCascadeCard = cascade.fields[0];
-                if(!bottomCascadeCard){
+                if (!bottomCascadeCard) {
                     debugger;
                 }
                 const lastCascadeCardIndex = this.cardTexts.indexOf(bottomCascadeCard.text);
@@ -278,7 +278,12 @@ class Game {
         });
 
         dragEl.addEventListener("dragover", (e) => {
-            e.preventDefault();
+            if (e.path && Array.isArray(e.path)) {
+                const isDroppable = e.path.some(p => p && p?.classList && p.classList.contains("droppable"))
+                if (isDroppable) {
+                    e.preventDefault();
+                }
+            }
         })
         return dragEl;
     }
