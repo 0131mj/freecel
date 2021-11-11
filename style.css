@@ -49,10 +49,13 @@ header {
     background-color: #aaa;
     display: flex;
     /*flex-direction: column;*/
-    justify-content: center;
+    justify-content: flex-start;
     height: 80px;
     margin-top: -60px !important;
-    border: 1px solid #000;
+    border: 1px solid #999;
+    width: 80px;
+    position: relative;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .draggable {
@@ -69,3 +72,15 @@ header {
 .drag-handler {
     padding-bottom: 20px;
 }
+
+.card-text-group{
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.card-text-group .shape {
+    font-size: 14px;
+}
+

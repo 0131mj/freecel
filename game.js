@@ -241,11 +241,11 @@ class Game {
         const {type, text} = card;
         const cardEl = document.createElement("div");
         cardEl.classList.add("card");
-        cardEl.innerHTML = `${type}_${text}`;
+        cardEl.innerHTML = `<div class="card-text-group"><div class="text">${text}</div><div class="shape">${type}</div></div>`;
         cardEl.style.margin = '8px 16px';
         cardEl.style.padding = '4px 8px';
         cardEl.style.color = this.getColorFromShape(type);
-        cardEl.style.backgroundColor = detachable ? "#fff" : "#888";
+        cardEl.style.backgroundColor = detachable ? "#fff" : "#ccc";
         // cardEl.addEventListener("click", () => {
         //     this.preDetach(cards, this.cascades[cascadeIdx]);
         //     this.render();
@@ -276,6 +276,10 @@ class Game {
             }, 0);
             // this.render();
         });
+
+        dragEl.addEventListener("dragover", (e) => {
+            e.preventDefault();
+        })
         return dragEl;
     }
 
