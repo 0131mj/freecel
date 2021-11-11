@@ -216,13 +216,14 @@ class Game {
     }
 
     detach() {
-        this.from.fields = this.from.fields.splice(0, this.from.fields.length - this.movingCards.length);
+        const remainCnt = (this.from.fields.length - this.movingCards.length) * -1;
+        this.from.fields = this.from.fields.splice(remainCnt);
     }
 
     attach(destination) {
         destination.fields = [
+            ...this.movingCards,
             ...destination.fields,
-            ...this.movingCards
         ];
     }
 
@@ -260,6 +261,7 @@ class Game {
 
         const {type, text} = card;
         dragEl.dataset.text = `${type}_${text}`;
+        dragEl.dataset.col = cascadeIdx;
         dragEl.addEventListener("dragstart", (e) => {
             e.stopPropagation()
             this.preDetach(cards, this.cascades[cascadeIdx]);
@@ -274,7 +276,7 @@ class Game {
             setTimeout(() => {
                 dragEl.style.opacity = "1";
             }, 0);
-            // this.render();
+            this.render();
         });
 
         dragEl.addEventListener("dragover", (e) => {
@@ -284,6 +286,16 @@ class Game {
                     e.preventDefault();
                 }
             }
+        })
+
+        dragEl.addEventListener("drop", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const {col} = dragEl.dataset;
+            const colIdx = Number(col);
+            this.attach(this.cascades[colIdx]);
+            this.detach();
+            this.render();
         })
         return dragEl;
     }
