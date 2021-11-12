@@ -342,14 +342,22 @@ class Game {
         freeCellContainer.style.display = "flex";
         freeCellContainer.setAttribute("id", "freeCells");
 
-        const freecells = this.freeCells.reduce((freeCellsEl, column, index) => {
+        const freecells = this.freeCells.reduce((freeCellsEl, currCard, index) => {
+
             const freeCellEl = document.createElement("div");
+            freeCellEl.dataset.col = index;
             freeCellEl.style.width = "100px";
             freeCellEl.style.height = "100px";
             freeCellEl.style.margin = "8px";
             freeCellEl.style.padding = "8px";
             freeCellEl.style.backgroundColor = "pink";
             freeCellEl.classList.add("free-cell");
+            if (currCard) {
+                const cardEl = this.createCardEl(currCard, true);
+                const dragEl = this.createDragEl(currCard, true);
+                dragEl.appendChild(cardEl)
+                freeCellEl.appendChild(dragEl);
+            }
 
             freeCellEl.addEventListener("dragover", (e) => {
                 const isDroppable = freeCellEl.getAttribute("droppable");
@@ -366,7 +374,11 @@ class Game {
             });
 
             freeCellEl.addEventListener("drop", (e) => {
-                console.log("Free Cell drop !!!", e, this.movingCards);
+                const colIdx = e.target.dataset.col;
+                this.freeCells[colIdx] = this.movingCards[0];
+                this.detach();
+                this.render();
+                console.log(this.freeCells);
             });
 
             freeCellsEl.appendChild(freeCellEl);
