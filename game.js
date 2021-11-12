@@ -172,13 +172,16 @@ class Game {
         })
 
         // - 프리셀 : 카드 1개만 (어떤 카드든)
-        this.freeCells.forEach((freeCell, index) => {
-            const freeCellEl = document.querySelector(`#freeCells > .free-cell:nth-child(${index+1})`);
-            if (!freeCell) {
-                freeCellEl.classList.add("droppable");
-                freeCellEl.style.backgroundColor = "yellowgreen"
-            }
-        })
+        if (this.movingCards?.length === 1) {
+            this.freeCells.forEach((freeCell, index) => {
+                const freeCellEl = document.querySelector(`#freeCells > .free-cell:nth-child(${index + 1})`);
+                if (!freeCell) {
+                    freeCellEl.setAttribute("droppable", "true");
+                    freeCellEl.classList.add("droppable");
+                    freeCellEl.style.backgroundColor = "yellowgreen"
+                }
+            })
+        }
 
         // - 캐스케이드: moving 카드가 쌓여있던 카드의 마지막 카드에서 색이 다르고 숫자가 1 감소하는 카드로 끝나는 더미만
         this.cascades.forEach((cascade, index) => {
@@ -290,6 +293,15 @@ class Game {
             }
         })
 
+        dragEl.addEventListener("dragenter", (e) => {
+            if (e.path && Array.isArray(e.path)) {
+                const isDroppable = e.path.some(p => p && p?.classList && p.classList.contains("droppable"))
+                if (isDroppable) {
+                    e.preventDefault();
+                }
+            }
+        })
+
         dragEl.addEventListener("drop", (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -339,6 +351,23 @@ class Game {
             freeCellEl.style.backgroundColor = "pink";
             freeCellEl.classList.add("free-cell");
 
+            freeCellEl.addEventListener("dragover", (e) => {
+                const isDroppable = freeCellEl.getAttribute("droppable");
+                if (isDroppable) {
+                    e.preventDefault();
+                }
+            });
+
+            freeCellEl.addEventListener("dragenter", (e) => {
+                const isDroppable = freeCellEl.getAttribute("droppable");
+                if (isDroppable) {
+                    e.preventDefault();
+                }
+            });
+
+            freeCellEl.addEventListener("drop", (e) => {
+                console.log("Free Cell drop !!!", e, this.movingCards);
+            });
 
             freeCellsEl.appendChild(freeCellEl);
             // const column = columns.fields.reduce((acc, currCard) => {
