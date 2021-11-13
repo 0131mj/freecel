@@ -179,6 +179,7 @@ class Game {
                 const lastCascadeCardIndex = this.cardTexts.indexOf(bottomCascadeCard.text);
                 const isLinear = lastCascadeCardIndex === lastMovingCardIndex + 1;
 
+                console.log(bottomCascadeCard, lastMovingCard)
                 const isDiffColor = this.getColorFromShape(bottomCascadeCard.type) !== this.getColorFromShape(lastMovingCard.type);
 
                 if (isLinear && isDiffColor) {
@@ -320,7 +321,7 @@ class Game {
             freeCellEl.classList.add("free-cell");
             if (currCard) {
                 const cardEl = this.createCardEl(currCard, true);
-                const dragEl = this.createDragEl({card: currCard, detachable: true, from: this.freeCells, cards: this.freeCells[index]});
+                const dragEl = this.createDragEl({card: currCard, detachable: true, from: this.freeCells, cards: [this.freeCells[index]]});
                 dragEl.appendChild(cardEl)
                 freeCellEl.appendChild(dragEl);
             }
