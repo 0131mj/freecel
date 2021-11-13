@@ -36,17 +36,6 @@
  *  START / (READY / RUN / CHECK_RESULT) / FINISH
  * */
 
-const zone = {
-    freeCell: [],
-    homeCell: [[], [], [], []],
-    cascade: [[], [], [], [], [], [], [], [], []],
-}
-
-const cards = {
-    A__heart: zone.freeCell[0],
-    A__clover: zone.freeCell[1],
-}
-
 class Game {
     constructor(props) {
         this.freeCells = new Array(4).fill(undefined);
@@ -105,18 +94,9 @@ class Game {
         this.cards.forEach((card) => {
             const colNum = Math.floor((Math.random() * this.cascades.length));
             this.cascades[colNum].fields.push(card);
-            // console.log(card, colNum)
         });
         this.movingCards = [];
-        // this.preDetach([this.cascades[0].fields[this.cascades[0].fields.length - 1]], this.cascades[0]);
-        // this.getAttachableZone();
-        // this.attach(this.cascades[1])
-        console.log(this.cascades);
         this.render();
-        // setTimeout(() => {
-        //     this.detach();
-        //     console.log(this.cascades);
-        // }, 5000)
     }
 
     /** Check :: 상태 확인 **/
@@ -148,6 +128,7 @@ class Game {
 
     /** 렌더 포함 */
     getAttachableZone() {
+        console.log(this.movingCards)
         const lastMovingCard = this.movingCards[this.movingCards.length - 1];
         const lastMovingCardIndex = lastMovingCard && this.cardTexts.indexOf(lastMovingCard.text);
         const lastMovingCardType = lastMovingCard && lastMovingCard.type;
@@ -185,7 +166,6 @@ class Game {
 
         // - 캐스케이드: moving 카드가 쌓여있던 카드의 마지막 카드에서 색이 다르고 숫자가 1 감소하는 카드로 끝나는 더미만
         this.cascades.forEach((cascade, index) => {
-
             const cascadeEls = document.querySelectorAll("#cascades > .drag-group");
             let attachable = false;
             if (cascade.fields.length < 1) {
@@ -216,6 +196,7 @@ class Game {
 
     /** Actions :: 카드 이동 및 변화 **/
     preDetach(cards, from) {
+        console.log("Pre Detach", cards, from)
         this.movingCards = cards;
         this.from = from;
     }
@@ -232,18 +213,7 @@ class Game {
         ];
     }
 
-    rollBack() {
-        this.movingCards = [];
-    }
-
-    move() {
-        this.detach();
-        this.attach();
-        this.checkIsFailed();
-        this.checkIsFinished();
-    }
-
-    createCardEl(card, detachable, cascadeIdx, cards) {
+    createCardEl(card, detachable) {
         const {type, text} = card;
         const cardEl = document.createElement("div");
         cardEl.classList.add("card");
@@ -252,24 +222,21 @@ class Game {
         cardEl.style.padding = '4px 8px';
         cardEl.style.color = this.getColorFromShape(type);
         cardEl.style.backgroundColor = detachable ? "#fff" : "#ccc";
-        // cardEl.addEventListener("click", () => {
-        //     this.preDetach(cards, this.cascades[cascadeIdx]);
-        //     this.render();
-        // });
         return cardEl;
     }
 
-    createDragEl(card, detachable, cascadeIdx, cards) {
+    createDragEl(args) {
+        const {card, detachable, idx, cards, from} = args;
         const dragEl = document.createElement("div");
         dragEl.classList.add("drag-group");
         dragEl.setAttribute("draggable", String(Boolean(detachable)));
 
         const {type, text} = card;
         dragEl.dataset.text = `${type}_${text}`;
-        dragEl.dataset.col = cascadeIdx;
+        dragEl.dataset.col = idx;
         dragEl.addEventListener("dragstart", (e) => {
-            e.stopPropagation()
-            this.preDetach(cards, this.cascades[cascadeIdx]);
+            e.stopPropagation();
+            this.preDetach(cards, from);
             setTimeout(() => {
                 dragEl.style.opacity = "0";
             }, 0);
@@ -342,8 +309,7 @@ class Game {
         freeCellContainer.style.display = "flex";
         freeCellContainer.setAttribute("id", "freeCells");
 
-        const freecells = this.freeCells.reduce((freeCellsEl, currCard, index) => {
-
+        const freeCells = this.freeCells.reduce((freeCellsEl, currCard, index) => {
             const freeCellEl = document.createElement("div");
             freeCellEl.dataset.col = index;
             freeCellEl.style.width = "100px";
@@ -354,7 +320,7 @@ class Game {
             freeCellEl.classList.add("free-cell");
             if (currCard) {
                 const cardEl = this.createCardEl(currCard, true);
-                const dragEl = this.createDragEl(currCard, true);
+                const dragEl = this.createDragEl({card: currCard, detachable: true, from: this.freeCells, cards: this.freeCells[index]});
                 dragEl.appendChild(cardEl)
                 freeCellEl.appendChild(dragEl);
             }
@@ -378,43 +344,24 @@ class Game {
                 this.freeCells[colIdx] = this.movingCards[0];
                 this.detach();
                 this.render();
-                console.log(this.freeCells);
             });
-
             freeCellsEl.appendChild(freeCellEl);
-            // const column = columns.fields.reduce((acc, currCard) => {
-            //     const lastCard = acc?.cards[acc.cards.length - 1] || null;
-            //     const detachable = this.checkDetachable(lastCard, currCard);
-            //     const accCards = (acc?.cards || []).concat([{...currCard, detachable}]);
-            //     const cardEl = this.createCardEl(currCard, detachable, index, accCards);
-            //     const dragEl = this.createDragEl(currCard, detachable, index, accCards);
-            //     dragEl.appendChild(cardEl);
-            //     if (acc?.dragEl) {
-            //         dragEl.appendChild(acc?.dragEl);
-            //     }
-            //     return {
-            //         dragEl,
-            //         cards: accCards
-            //     };
-            // }, null);
-            // cascade.appendChild(column?.dragEl);
             return freeCellsEl;
         }, freeCellContainer);
-        document.body.appendChild(freecells);
-
+        document.body.appendChild(freeCells);
 
         /** Cascade **/
         const cascadeContainer = document.createElement("section");
         cascadeContainer.style.display = "flex";
         cascadeContainer.setAttribute("id", "cascades");
 
-        const cascades = this.cascades.reduce((cascade, columns, index) => {
+        const cascades = this.cascades.reduce((cascade, columns, idx) => {
             const column = columns.fields.reduce((acc, currCard) => {
                 const lastCard = acc?.cards[acc.cards.length - 1] || null;
                 const detachable = this.checkDetachable(lastCard, currCard);
                 const accCards = (acc?.cards || []).concat([{...currCard, detachable}]);
-                const cardEl = this.createCardEl(currCard, detachable, index, accCards);
-                const dragEl = this.createDragEl(currCard, detachable, index, accCards);
+                const cardEl = this.createCardEl(currCard, detachable, idx, accCards);
+                const dragEl = this.createDragEl({card: currCard, detachable, idx, cards: accCards, from: this.cascades[idx]});
                 dragEl.appendChild(cardEl);
                 if (acc?.dragEl) {
                     dragEl.appendChild(acc?.dragEl);
@@ -443,24 +390,3 @@ class Game {
 }
 
 new Game().start();
-
-// class Game {
-//     constructor(props) {
-//         this.cardTypes = new Set(["♥", "◆", "♣", "♠"]);
-//         this.cardTexts = new Set(["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]);
-//         this.cards = new Map();
-//         this.cardKeys = new Set();
-//         for (const text of this.cardTexts) {
-//             for (const type of this.cardTypes) {
-//                 this.cards.set(`${text}__${type}`, null);
-//                 this.cardKeys.add(`${text}__${type}`);
-//             }
-//         }
-//         console.log(this.cards)
-//         console.log(this.cardKeys)
-//     }
-//
-//     start() {
-//
-//     }
-// }
